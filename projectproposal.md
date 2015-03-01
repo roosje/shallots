@@ -43,7 +43,7 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Create website somewhere (decide where)
 <br>-Visualize 
 
-<img src='images/projectplan.png'>
+<img src='images/projectplan.png' width = 800>
 <ul>
 <li>Barchart with on click -> concept graph of specific cluster, wordcloud?</li>
 <li>Gephi grouped clusters with relations between them based on url references</li>
