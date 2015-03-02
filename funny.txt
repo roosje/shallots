@@ -1,0 +1,2 @@
+I found out that when a site raises and error on language detection, a lot of times this is because it is seized by Europol
+Example: https://pharmajiyhpjflqi.tor2web.fi/
