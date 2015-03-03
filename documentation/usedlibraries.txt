@@ -2,3 +2,4 @@ from langdetect import detect
 import pymongo
 from pymongo import MongoClient
 from collections import defaultdict
+import pandas

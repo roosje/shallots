@@ -1,0 +1,12 @@
+ipython notebook
+start
+$ ipython notebook --profile=nbserver
+
+postgres
+signin
+psql -U postgres -h localhost
+
+\connect database_name
+
+
+maybe use pandas to sql
