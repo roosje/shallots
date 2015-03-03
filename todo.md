@@ -3,17 +3,18 @@
 <s>-Language detection</s>
 <s>-Storing language</s>
 
--Amount of seized sites (not relevant but interesting)
+<s>-Amount of seized sites (not relevant but interesting)</s>
 
 -test run on getting topics/clusters
 
 -Grouping domains together
 -Counting unique website
 
--set up postgres
+<s>-set up postgres</s>
 
 -check if websites are complete (%)
--are found urls actually in the data?
+-are found urls that are in mongo content actually in the data?
+-are found urls via search engine actually in the data?
 -url to url storing
 
 -country extraction
