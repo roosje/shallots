@@ -24,40 +24,50 @@ def drop_table(tablename):
 
 def create_tables():
     #create table sites    
-    cur.execute("select exists(select * from information_schema.tables where table_name=%s)", ('sites',))
+    cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
+                ('sites',))
     if not cur.fetchone()[0]:
-        cur.execute("CREATE TABLE sites (site_id serial PRIMARY KEY, mongo_id integer);")
+        cur.execute("CREATE TABLE sites (site_id SERIAL PRIMARY KEY, mongo_id INTEGER);")
     #create table features 
     #!!!!!----------need to change to 1 column per extracted country----!!!!
-    cur.execute("select exists(select * from information_schema.tables where table_name=%s)", ('features',))
+    cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
+                ('features',))
     if not cur.fetchone()[0]:
-        cur.execute("CREATE TABLE features (site_id integer, cluster_id integer, countries varchar);")
+        cur.execute("CREATE TABLE features (site_id INTEGER, cluster_id INTEGER, countries VARCHAR);")
     #create table clusters    
-    cur.execute("select exists(select * from information_schema.tables where table_name=%s)", ('clusters',))
+    cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
+                ('clusters',))
     if not cur.fetchone()[0]:
-        cur.execute("CREATE TABLE clusters (cluster_id integer, cluster_name varchar, \
-                    legal boolean, description varchar);")
+        cur.execute("CREATE TABLE clusters (cluster_id INTEGER, cluster_name VARCHAR, \
+                    legal BOOLEAN, description VARCHAR);")
     #create table relations    
-    cur.execute("select exists(select * from information_schema.tables where table_name=%s)", ('relations',))
+    cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
+                ('relations',))
     if not cur.fetchone()[0]:
-        cur.execute("CREATE TABLE relations (site_id_from integer, site_id_to integer);")
+        cur.execute("CREATE TABLE relations (site_id_from INTEGER, site_id_to INTEGER);")
     #create table clusterwordvecs    
-    cur.execute("select exists(select * from information_schema.tables where table_name=%s)", ('clusterwordvecs',))
+    cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
+                ('clusterwordvecs',))
     if not cur.fetchone()[0]:
-        cur.execute("CREATE TABLE clusterwordvecs (cluster_id integer, \
-                    word_1 varchar, word_2 varchar, simscore real);")
+        cur.execute("CREATE TABLE clusterwordvecs (cluster_id INTEGER, \
+                    word_1 VARCHAR, word_2 VARCHAR, simscore REAL);")
     con.commit()
     
-
-if __name__ == '__main__':
+def main():
     dbname= 'shallots'
     con = connect(database='shallots', user ='postgres', password='****', host='localhost')
     con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cur = con.cursor()
-    #drop tables
-    #drop_table('clusters')
+    tables = #@@@
+    #drop all tables
+    for table in tables:
+        drop_table(table)
     #create tables
     create_tables()
     #close connections
     cur.close()
     con.close()
+
+if __name__ == '__main__':
+    main()
+
