@@ -1,12 +1,19 @@
 ipython notebook
 start
 $ ipython notebook --profile=nbserver
-
+---------------------------------
 postgres
 signin
 psql -U postgres -h localhost
-
 \connect database_name
-
-
+--------------------------------
+to try:
 maybe use pandas to sql
+---------------------------------
+using passwords in github code
+nano ~/.zshrc
+add row export MYPASS=1234
+source ~/.zshrc
+import os
+os.environ['MYPASS']
+---------------------------------
