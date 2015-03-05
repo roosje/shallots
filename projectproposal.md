@@ -62,6 +62,8 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Gensim
 <br>-Clustering (kmeans?)
 
+<img src='images/dataflow.png' width=800>
+
 <i>Data features</i>
 <br>Mongo crawl result : site_id, url, content, title, timestamp, (language)
 <br>Feature matrix: site_id, cluster, countries
