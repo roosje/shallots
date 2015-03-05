@@ -17,3 +17,5 @@ source ~/.zshrc
 import os
 os.environ['MYPASS']
 ---------------------------------
+Folder size
+du -hs /home/ubuntu/*
