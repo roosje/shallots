@@ -1,31 +1,27 @@
-#create database
 from psycopg2 import connect
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-con=None
-cur=None
-
-def show_databases():
+def show_databases(con, cur):
     cur.execute('''SELECT datname from pg_database''')
     databases = cur.fetchall()
     print databases
 
-def create_database(dbname):
+def create_database(con, cur, dbname):
     try:
         cur.execute('CREATE DATABASE ' + dbname)
         con.commit()
     except psycopg2.Error as e:
         print e
 
-def drop_table(tablename):
+def drop_table(con, cur, tablename):
     cur.execute("DROP TABLE IF EXISTS " + tablename)
-    con.comit()
+    con.commit()
 
-def create_tables():
+def create_tables(con, cur):
     #create table sites    
     cur.execute("SELECT exists(SELECT * FROM information_schema.tables WHERE table_name=%s)", \
-                ('sites',))
+                ('sites'))
     if not cur.fetchone()[0]:
         cur.execute("CREATE TABLE sites (site_id SERIAL PRIMARY KEY, mongo_id INTEGER);")
     #create table features 
@@ -53,21 +49,4 @@ def create_tables():
                     word_1 VARCHAR, word_2 VARCHAR, simscore REAL);")
     con.commit()
     
-def main():
-    dbname= 'shallots'
-    con = connect(database='shallots', user ='postgres', password='****', host='localhost')
-    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    cur = con.cursor()
-    tables = #@@@
-    #drop all tables
-    for table in tables:
-        drop_table(table)
-    #create tables
-    create_tables()
-    #close connections
-    cur.close()
-    con.close()
-
-if __name__ == '__main__':
-    main()
 

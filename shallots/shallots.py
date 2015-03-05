@@ -12,13 +12,15 @@ class shallots(object):
     def __init__(self):
         self.client = MongoClient('localhost', 27017)
         self.dbname= 'shallots'
+        self.db = self.client.scrapy.onions
         self.con = connect(database='shallots', user ='postgres', password='****', host='localhost')
         self.con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cur = self.con.cursor()
-        self.clusters = []
+        self.clusters = {}
+        self.comains =[]
 
     def add_languages_mongo(self):
-        add_languages(self.client)
+        add_languages.run(self.db)
 
     def make_sql_database(self):
         #create database ?
@@ -34,66 +36,64 @@ class shallots(object):
         #select only english
         #get mongo_id
         #store in sql
-        db = client.scrapy
-        for i, d in db.onions.find({"language": "en"})['_id', 'domain']
-            #insert into table sites field: mongo_id
-            cur.execute("INSERT INTO sites VALUES (i, d);")
+        for i, d in self.db.find({"language": "en"})['_id', 'domain']
+            self.domains.append(d)
+            #insert into sites fields: mongo_id and domain, site_id is serial
+            self.cur.execute("INSERT INTO sites VALUES (%s, %s);", (i, d))
         self.con.commit()
         
     def fill_sitesite_relations(self):
-        pass
+        for d in self.domains:
+            #get html from mongo for that domain
+            html = self.db.find({"domain": d}['HTML'])
+            #find domains in htmls
+            #store d, domains in relations
+        self.con.commit()    
 
     def fill_countries(self):
-        pass
+        extractcountries.run(self.client)
 
-    def clean_text(self):
-        #remove ascii
-        #lower
-        #store
-        pass
+    def clean_text_store():
+        #group text per domain get from mongo
+        self.cur.execute("SELECT DISTINCT(domain) FROM sites;")
+        domains = self.cur.fetchall()
+        for d in domains:
+            text = " ".join(db.find({"domain":d})['words'].values)
+            #remove ascii
+            text = text.lower()
+            #store in postgres
+            self.cur.execute("INSERT INTO features VALUES(%s, %s);", (d, text))
+        self.con.commit()
 
-    def tokenize_text(self):
-        #stem
-        #tokenize
-        #store
-        pass
-
-    def find_clusters(self):
-        self.clusters = 
-
-    def get_cluster_description(self):
-        pass
-
-    def store_clus_desc(self):
-        pass
+    def find_clusters_descr_and_store(self, n_topics):
+        self.clusters = topic_model.model(data, n_topics)
+        for k, v in self.clusters.iteritems():
+            descr = " ".join(v)
+            self.cur.execute("INSERT INTO clusters VALUES(%d, %s);",(k, descr))
 
     def similar_extract(self):
-        conceptextractor(self.con, self.cur, self.clusters)
+        conceptextractor.extract_and store(self.con, self.cur, self.clusters)
 
 if __name__ == '__main__':
     #shal = shallots()
     #add "language" field to mongodb
-    add_languages_mongo()
+    self.add_languages_mongo()
     #drop, make database & tables postgres
-    make_sql_database()
+    self.make_sql_database()
     #fill tables with referrals to mongo ID (filter on english language)
-    fill_mongoref_sql_database()
+    self.fill_mongoref_sql_database()
     #extract urls (domains) and store in table
-    fill_sitesite_relations()
-    #clean text and store in sql
-    clean_text()
+    self.fill_sitesite_relations()
+    #clean and concat text and store in sql
+    self.clean_text_store()
     #extract countries and store in table
-    fill_countries()
-    #tokenize and cluster
-    tokenize_text()
-    find_clusters()
-    #get description
-    get_cluster_description()
+    self.fill_countries()
     #store clusters and their description
-    store_clus_desc
+    self.find_clusters_descr_and_store(n_topics = 10)
     '''handwork annotating legal/illegal'''
     #within clusters, do similar concept extraction and store in table
-    similar_extract()
+    self.similar_extract()
     #visualize (tell flask to prepare everything)
     self.cur.close()
     self.con.close()
+    self.client.close()

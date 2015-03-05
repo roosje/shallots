@@ -45,11 +45,11 @@ def get_countries(s):
     return set([correct_country_mispelling(place) for place \
                         in set(places.names) if is_a_country2(place)])
 
-
-if __name__ == '__main__':
+def run(client, dbname, ):
     data = pd.DataFrame()
-    client = MongoClient('localhost', 27017)
     db = client.scrapy
+
+    
     engine = create_engine('postgresql://bla:bla@localhost:1234/mydatabase')
     data['mongo_id'] = pd.read_sql_table('table_name', engine, index_col='mongo_id')
     for id in data['mongo_id']:

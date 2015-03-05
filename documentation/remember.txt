@@ -17,5 +17,8 @@ source ~/.zshrc
 import os
 os.environ['MYPASS']
 ---------------------------------
+Shell:
 Folder size
 du -hs /home/ubuntu/*
+Remove folders despite content
+rm -rd *

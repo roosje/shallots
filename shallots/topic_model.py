@@ -5,15 +5,17 @@ from nltk.corpus import stopwords
 from operator import itemgetter
 import re
 
-def clean_text(doc):
-    return doc
+def model(documents, n_topics):
+    #lemma
+    #remove stopwords
+    #tokenize
+    #tfidf
 
-
-def model(data):
-    documents = [clean_text(document) for document in data]
+    #data is already cleaned and lowercased
+    #documents = [document for document in data]
     stoplist = stopwords.words('english')
-    texts = [[word for word in document.lower().split() if word not in stoplist]
-              for document in documents]
+    texts = [[word for word in document.split() if word not in stoplist]
+              for document in documents] #list of lists
 
     dictionary = corpora.Dictionary(texts)
     corpus = [dictionary.doc2bow(text) for text in texts]
@@ -21,10 +23,9 @@ def model(data):
     tfidf = models.TfidfModel(corpus) 
     corpus_tfidf = tfidf[corpus]
 
-    #lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-    #lsi.print_topics(20)
+    #lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=n_topics)
+    #lsi.print_topics(10)
 
-    n_topics = 10
     lda = models.LdaModel(corpus_tfidf, id2word=dictionary, num_topics=n_topics)
 
     topics_descr = {}
@@ -33,6 +34,6 @@ def model(data):
         terms = []
         for term in temp:
             terms.append(term[1])
-        topics_descr[] = terms
+        topics_descr[i] = terms
 
     return topics_descr
