@@ -5,29 +5,34 @@ from nltk.corpus import stopwords
 from operator import itemgetter
 import re
 
-documents = [nltk.clean_html(document) for document in xxx]
-stoplist = stopwords.words('english')
-texts = [[word for word in document.lower().split() if word not in stoplist]
- for document in documents]
+def clean_text(doc):
+    return doc
 
-dictionary = corpora.Dictionary(texts)
-corpus = [dictionary.doc2bow(text) for text in texts]
 
-tfidf = models.TfidfModel(corpus) 
-corpus_tfidf = tfidf[corpus]
+def model(data):
+    documents = [clean_text(document) for document in data]
+    stoplist = stopwords.words('english')
+    texts = [[word for word in document.lower().split() if word not in stoplist]
+              for document in documents]
 
-#lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
-#lsi.print_topics(20)
+    dictionary = corpora.Dictionary(texts)
+    corpus = [dictionary.doc2bow(text) for text in texts]
 
-n_topics = 10
-lda = models.LdaModel(corpus_tfidf, id2word=dictionary, num_topics=n_topics)
+    tfidf = models.TfidfModel(corpus) 
+    corpus_tfidf = tfidf[corpus]
 
-topics_descr = {}
-for i in range(0, n_topics):
-    temp = lda.show_topic(i, 10)
-    terms = []
-    for term in temp:
-        terms.append(term[1])
-    topics_descr[] = terms
+    #lsi = models.LsiModel(corpus_tfidf, id2word=dictionary, num_topics=100)
+    #lsi.print_topics(20)
 
-return topics_descr
+    n_topics = 10
+    lda = models.LdaModel(corpus_tfidf, id2word=dictionary, num_topics=n_topics)
+
+    topics_descr = {}
+    for i in range(0, n_topics):
+        temp = lda.show_topic(i, 10)
+        terms = []
+        for term in temp:
+            terms.append(term[1])
+        topics_descr[] = terms
+
+    return topics_descr
