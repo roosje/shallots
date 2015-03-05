@@ -19,8 +19,8 @@ class shallots(object):
         self.clusters = {}
         self.comains =[]
 
-    def add_languages_mongo(self):
-        add_languages.run(self.db)
+    def add_languages_mongo(self, stepsize, start):
+        add_languages.run(self.db, stepsize, start)
 
     def make_sql_database(self):
         #create database ?
@@ -77,7 +77,8 @@ class shallots(object):
 if __name__ == '__main__':
     #shal = shallots()
     #add "language" field to mongodb
-    self.add_languages_mongo()
+    self.add_languages_mongo(stepsize =100, start=0)
+    break
     #drop, make database & tables postgres
     self.make_sql_database()
     #fill tables with referrals to mongo ID (filter on english language)
