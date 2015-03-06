@@ -22,3 +22,26 @@ Folder size
 du -hs /home/ubuntu/*
 Remove folders despite content
 rm -rd *
+----------------------------------
+Tmux flask:
+tmux new -s hedda
+Create app.py
+ipython app.py
+tmux attach -t hedda
+tmux kill-session -t myname
+tmux ls (list all running sessions)
+http://the-amazon-ip:6969/index
+----------------------------------
+Services running:
+service --status-all
+sudo service mongodb restart
+
+Change accepting external ip's:
+sudo vi  /etc/mongodb.conf
+and edit
+
+bind_ip = 127.0.0.1   (change this)
+---------------------------------
+stuck in vi
+:q!
+
