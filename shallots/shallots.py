@@ -10,6 +10,8 @@ from psycopg2 import connect
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+from sqlalchemy import Table, MetaData, create_engine
+
 import sys
 import os
 import re
@@ -27,6 +29,9 @@ class shallots(object):
         self.cur = self.con.cursor()
         self.clusters = {}
         self.domains = set()
+        self.engine = create_engine("postgresql://postgres:%s@%s/%s" \
+                      %(password, server, self.sql_dbname))
+        self.alchcon = self.engine.connect().connection
 
     def add_languages_mongo(self, stepsize, start):
         add_languages.run(self.mongo_db, stepsize, start)
@@ -101,7 +106,7 @@ class shallots(object):
         self.con.commit()
 
     def fill_countries(self):
-        extractcountries.run(self.mongo_db, self.con, self.cur)
+        extractcountries.run(self.con, self.engine)
 
     def find_clusters_descr_and_store(self, n_topics):
         self.clusters = topic_model.model(data, n_topics)
@@ -125,10 +130,10 @@ if __name__ == '__main__':
     '''clean and concat text and store in sql'''
     #shal.clean_text_store()
     '''extract countries and store in table'''
-    shal.fill_countries()
-    sys.exit()
+    shal.fill_countries()  #now stores in features2
     '''store clusters and their description'''
-    shal.find_clusters_descr_and_store(n_topics = 10)
+    #shal.find_clusters_descr_and_store(n_topics = 10)
+    sys.exit()
     '''handwork annotating legal/illegal'''
     '''within clusters, do similar concept extraction and store in table'''
     shal.similar_extract()
@@ -136,3 +141,4 @@ if __name__ == '__main__':
     shal.cur.close()
     shal.con.close()
     shal.client.close()
+    shal.alchcon.close()

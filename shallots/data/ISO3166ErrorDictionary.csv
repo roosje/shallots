@@ -1,6 +1,8 @@
 data.un.org entry,Issue,ISO3166 name or code,,,
 Ã…land Islands,spelling,Åland Islands,,,
 "Afghanistan, Islamic State of",spelling,Afghanistan,,,
+Afghan,spelling,Afghanistan,,,
+Albanian,local,Albania,,,
 "Bahamas, The",spelling,Bahamas,,,
 Bolivia,spelling,"Bolivia, Plurinational State of",,,
 Bosnia Herzegovina,spelling,Bosnia and Herzegovina,,,
@@ -124,6 +126,8 @@ Timor Leste,spelling,Timor-Leste,,,
 Turks and Caicos Islands,spelling,Turks and Caicos Islands,,,
 United Kingdom of Great Britain & Northern Ireland,spelling,United Kingdom,,,
 Usa,spelling,United States,,,
+USA,spelling,United States,,,
+U.S.,spelling,United States,,,
 "United States of America, pacific Islands",spelling,US Miscellaneous Pacific Islands,,,
 US Miscellaneous Pacific Islands,spelling,US Miscellaneous Pacific Islands,,,
 Former USSR,spelling,"USSR, Union of Soviet Socialist Republics",,,
@@ -170,3 +174,238 @@ Wake Island,withdrawn,WAK,,,
 Serbia and Montenegro,withdrawn,SCG,,,
 Netherlands Antilles,withdrawn,ANT,,,
 Pacific Islands (trust territory),withdrawn,PCI,,,
+German,inhab,Germany,,,
+French,inhab,France,,,
+Japanese,inhab,Japan,,,
+Portuguese,inhab,Portugal,,,
+Italiano,local,Italy,,,
+Dutch,local,Netherlands,,,
+Russian,local,Russia,,,
+American,local,United States,,,
+Chinese,local,China,,,
+Finnish,local,Finland,,,
+Belgian,local,Belgium,,,
+Holland,local,Netherlands,,,
+"The Netherlands",local,Netherlands,,,
+Ukranian,local,Ukraine,,,
+Turkish,local,Turkey,,,
+Thai,local,Thailand,,,
+Swedish,local,Sweden,,,
+Spanish,local,Spain,,,
+Slovenian,local,Slovenia,,,
+Slovak,local,Slovakia,,,
+Serbian,local,Serbia,,,
+Romanian,local,Romania,,,
+Portuguese,local,Portugal,,,
+Brazilian,local,Brazil,,,
+Polish,local,Poland,,,
+Norwegian,local,Norway,,,
+Lithuanian,local,Lithuania,,,
+Latvian,local,Latvia,,,
+Korean,local,Korea,,,
+Kazakh,local,Kazakhstan,,,
+Italian,local,Italy,,,
+Indonesian,local,Indonesia,,,
+Hungarian,local,Hungary,,,
+Austrian,local,Austria,,,
+Swiss,local,Switzerland,,,
+Greek,local,Greece,,,
+Estonian,local,Estonia,,,
+English,local,United Kingdom,,,
+U.K.,local,United Kingdom,,,
+England,local,United Kingdom,,,
+Scotland,local,United Kingdom,,,
+Scottish,local,United Kingdom,,,
+Danish,local,Denmark,,,
+Czech,local,Czech Republic,,,
+Croatian,local,Croatia,,,
+Bulgarian,local,Bulgaria,,,
+Uzbek,local,Uzbekistan,,,
+
+
+
+
+Algerian
+Andorran
+Angolan
+Argentine
+Armenian
+Aromanian
+Aruban
+Australian
+Austrian
+Azeri
+Bahamian
+Bahraini
+Bangladeshi
+Barbadian
+Belarusian
+Belizeans
+Bermudians
+Boers
+Bosniaks
+Brazilians
+Bretons
+British
+British Virgin Islanders
+Bulgarians
+Burmeses
+Macedonian Bulgarians
+Burkinabès
+Burundians
+Cambodians
+Cameroonians
+Canadians
+Catalans
+Cape Verdeans
+Chadians
+Chileans
+Chinese
+Colombians
+Comorians
+Congolese
+Croatians
+Cubans
+Cypriots
+Turkish Cypriots
+Czechs
+Danes
+Dominicans (Republic)
+Dominicans (Commonwealth)
+Dutch
+East Timorese
+Ecuadorians
+Egyptians
+Emiratis
+English
+Eritreans
+Estonians
+Ethiopians
+Faroese
+Finns
+Finnish Swedish
+Fijians
+Filipinos
+French citizens
+Georgians
+Germans
+Baltic Germans
+Ghanaians
+Gibraltar
+Greeks
+Greek Macedonians
+Grenadians
+Guatemalans
+Guianese (French)
+Guineans
+Guinea-Bissau nationals
+Guyanese
+Haitians
+Hondurans
+Hong Kong
+Hungarians
+Icelanders
+Indians
+Indonesians
+Iranians (Persians)
+Arabs
+Irish
+Israelis
+Italians
+Ivoirians
+Jamaicans
+Japanese
+Jordanians
+Kazakhs
+Kenyans
+Koreans
+Kosovo Albanians
+Kurds
+Kuwaitis
+Lao
+Latvians
+Lebanese
+Liberians
+Libyans
+Liechtensteiners
+Lithuanians
+Luxembourgers
+Macedonians
+Malagasy
+Malaysians
+Malawians
+Maldivians
+Malians
+Maltese
+Manx
+Mauritians
+Mexicans
+Moldovans
+Moroccans
+Mongolians
+Montenegrins
+Namibians
+Nepalese
+New Zealanders
+Nicaraguans
+Nigeriens
+Nigerians
+Norwegians
+Pakistanis
+Palauans
+Palestinians
+Panamanians
+Papua New Guineans
+Paraguayans
+Peruvians
+Poles
+Portuguese
+Puerto Ricans
+Quebecers
+Réunionnais
+Romanians
+Russians
+Baltic Russians
+Rwandans
+Salvadorans
+São Tomé and Príncipe
+Saudis
+Scots
+Senegalese
+Serbs
+Sierra Leoneans
+Singaporeans
+Slovaks
+Slovenes
+Somalis
+South Africans
+Spaniards
+Sri Lankans
+St Lucians
+Sudanese
+Surinamese
+Swedes
+Swiss
+Syrians
+Taiwanese
+Tanzanians
+Thais
+Tibetans
+Tobagonians
+Trinidadians
+Tunisians
+Turks
+Tuvaluans
+Ugandans
+Ukrainians
+Uruguayans
+Uzbeks
+Vanuatuans
+Venezuelans
+Vietnamese
+Welsh
+Yemenis
+Zambians
+Zimbabweans
+
+
