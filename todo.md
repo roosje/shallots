@@ -28,3 +28,7 @@ Longer run:
 -Legal/illegal annotate
 -similar concept extraction
 -visualize
+
+
+-More words in wordlist that point to countries
+(capitals, inhabitants, language)
