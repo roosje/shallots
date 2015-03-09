@@ -28,7 +28,7 @@ import unicodedata as ud
 #store pandas dataframe in sql
 
 def correct_country_mispelling(s):
-    
+
     with open("data/countrydict.csv", "rb") as info:
         reader = csv.reader(info)
         for row in reader:
@@ -62,6 +62,7 @@ def run(conn, engine):
             data.loc[index, country]=True
 
     data = data.fillna(False)
+    data.pop('text')
     print data.columns 
     psql.to_sql(data, "features2", con=engine, if_exists='replace', index=False)
 

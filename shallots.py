@@ -145,10 +145,10 @@ class shallots(object):
 
 
     def find_topics_descr_and_store(self, n_topics, n_domains):
-        topicm = topic_model()
+        topicm = topic_model.topic_model()
 
         rx = re.compile('\W+')
-        self.cur.execute("SELECT text FROM features2 LIMIT %d \
+        self.cur.execute("SELECT text FROM features LIMIT %d \
                           ORDER BY RAND();" %(n_domains))
         texts = []
         for row in self.cur.fetchall():
@@ -162,7 +162,7 @@ class shallots(object):
             #self.cur.execute("INSERT INTO clusters VALUES(%d, %s);",(k, descr))
         #self.con.commit()
         #run on everything for assigning clusters
-        self.cur.execute("SELECT domain, text FROM features2;")
+        self.cur.execute("SELECT domain, text FROM features;")
         for row in self.cur.fetchall():
             domain = row[0]
             text = row[1]
@@ -182,26 +182,41 @@ class shallots(object):
 
 if __name__ == '__main__':
     shal = shallots()
-    '''add "language" field to mongodb'''
+    
+    # ADD "LANGUAGE" FIELD TO MONGODB
     #shal.add_languages_mongo(stepsize =1000, start=0)
-    '''drop, make database & tables postgres'''
+    
+    # DROP, MAKE DATABASES & TABLES POSTGRES
     #shal.make_sql_database()
-    '''fill tables with referrals to mongo ID (filter on english language)'''
+
+    # FILL TABLES WITH REFERRALS TO MONGO ID
+    # (FILTER IN ENGLISH LANGUAGE)
     #shal.fill_mongoref_sql_database()
-    '''extract urls (domains) and store in table'''
+
+    # EXTRACT DOMAINS FROM HTML AND STORE IN TABLE
     #shal.fill_sitesite_relations()
-    '''clean and concat text and store in sql'''
+
+    # CLEAN AND CONCAT TEXT AND STORE IN TABLE
     #shal.group_text_store()
-    '''extract countries and store in table'''
-    shal.fill_countries()  #now stores in features2
-    '''store clusters and their description'''    
-    shal.find_clusters_descr_and_store(n_topics = 10, n_domains = 100)
+
+    # EXTRACT COUNTRIES AND STORE IN TABLE
+    #shal.fill_countries()  #now stores in features2 without text
+
+    # STORE CLUSTERS AND THEIR DESCRIPTION
+    # PLUS STORE CLUSTER ASSIGNMENTS   
+    shal.find_topics_descr_and_store(n_topics = 10, n_domains = 100)
     sys.exit()
-    '''handwork annotating legal/illegal'''
-    '''within clusters, do similar concept extraction and store in table'''
+
+    # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE'''
     shal.similar_extract()
-    '''visualize (tell flask to prepare everything)'''
+    
+    # CLOSE ALL THE CONNECTIONS
     shal.cur.close()
     shal.con.close()
     shal.client.close()
     shal.alchcon.close()
+
+    # INSERT HANDWORK ANNOTATIONS FOR LEGAL/ILLEGAL CLUSTERS
+    # INSERT HANDWORK NAMING OF CLUSTERS
+    # AFTER THAT TIME TO VISUALIZE
+
