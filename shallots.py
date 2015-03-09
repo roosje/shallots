@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import add_languages
 import setup_postgres
 import extractcountries
+import topic_model
+import conceptextractor
 
 import pymongo
 from pymongo import MongoClient
@@ -12,6 +17,9 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from sqlalchemy import Table, MetaData, create_engine
 
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
 import sys
 import os
 import re
@@ -20,6 +28,7 @@ class shallots(object):
     def __init__(self):
         password = os.environ['roosje_pass']
         server = os.environ['aws_server']
+        
         self.client = MongoClient(server, 27017)
         self.mongo_db = self.client.scrapy.onions
         self.sql_dbname= 'shallots'
@@ -27,25 +36,38 @@ class shallots(object):
                            password=password, host=server)
         self.con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cur = self.con.cursor()
-        self.clusters = {}
+        self.topics = {}
         self.domains = set()
         self.engine = create_engine("postgresql://postgres:%s@%s/%s" \
                       %(password, server, self.sql_dbname))
         self.alchcon = self.engine.connect().connection
 
+
+
     def add_languages_mongo(self, stepsize, start):
+        '''
+        INPUT: INT, INT (used for breaking up the proces in smaller steps)
+        Adds "language" field to mongodb based on "word" field
+        '''
         add_languages.run(self.mongo_db, stepsize, start)
 
+
+
     def make_sql_database(self):
-        #get current tables
+        '''
+        Creates a new postgres database (drops all tables)
+        '''
+        # GET CURRENT TABLES
         self.cur.execute("SELECT relname FROM pg_class WHERE relkind='r' AND \
                           relname !~ '^(pg_|sql_)';")
         tables = [i[0] for i in self.cur.fetchall()]
-        #drop all tables
+        # DROP ALL TABLES
         for table in tables:
             setup_postgres.drop_table(self.con, self.cur, table)
-        #create tables
+        # CREATE NEW TABLES
         setup_postgres.create_tables(self.con, self.cur)
+
+
 
     def fill_mongoref_sql_database(self):
         #select only english
@@ -61,6 +83,8 @@ class shallots(object):
                             ('%s', '%s');''' %(str(res['_id']), domain))
         self.con.commit()
         
+
+
     def fill_sitesite_relations(self):
         print "filling dom-dom relations in sql"
         self.cur.execute('SELECT DISTINCT(domain) FROM sites;')
@@ -85,37 +109,76 @@ class shallots(object):
                                 ('%s', '%s');''' %(d, ref_dom))
             self.con.commit()    
 
-    def clean_text_store(self):
-        print "concat text per domain, clean and store"
+
+
+    def group_text_store(self):
+        print "concat text per domain and store"
         self.cur.execute("SELECT DISTINCT(domain) FROM sites;")
         self.domains = set([i[0] for i in self.cur.fetchall()])
         for d in self.domains:
             #search text and concat
             text = " ".join(res['words'] for res in \
                    self.mongo_db.find({"domain":d},{'words':1}))
-            #cleaning punctuation and non alpha content
-            '''
-            rx = re.compile('\W+')
-            text = rx.sub(" ", text).strip()
-            text = " ".join([word.lower() for word in text.split() if \
-                       word.isalpha()])'''
             text = text.replace("'"," ")
             #store in postgres
             self.cur.execute('''INSERT INTO features (domain, text) VALUES('%s', '%s');'''\
                              %(d, text))
         self.con.commit()
 
+
+
     def fill_countries(self):
         extractcountries.run(self.con, self.engine)
 
-    def find_clusters_descr_and_store(self, n_topics):
-        self.clusters = topic_model.model(data, n_topics)
-        for k, v in self.clusters.iteritems():
+
+
+    def clean_tokenized_text(self, doc, rx):
+        #cleaning punctuation and non alpha content
+        text = rx.sub(" ", doc).strip()
+        stoplist = stopwords.words('english')
+        #lemmatizing
+        lemma = WordNetLemmatizer()
+        split_cleaned_text = [lemma(word.lower(), pos='v') for word in text.split() if \
+                       (word.isalpha() and word not in stoplist)]
+        return split_cleaned_text
+
+
+
+    def find_topics_descr_and_store(self, n_topics, n_domains):
+        topicm = topic_model()
+
+        rx = re.compile('\W+')
+        self.cur.execute("SELECT text FROM features2 LIMIT %d \
+                          ORDER BY RAND();" %(n_domains))
+        texts = []
+        for row in self.cur.fetchall():
+            text = clean_tokenized_text(row[0])
+            texts.append(text)
+        #build model on n_domains rows
+        self.topics = topicm.model(texts, n_topics)
+        for k, v in self.topics.iteritems():
             descr = " ".join(v)
-            self.cur.execute("INSERT INTO clusters VALUES(%d, %s);",(k, descr))
+            print k, descr
+            #self.cur.execute("INSERT INTO clusters VALUES(%d, %s);",(k, descr))
+        #self.con.commit()
+        #run on everything for assigning clusters
+        self.cur.execute("SELECT domain, text FROM features2;")
+        for row in self.cur.fetchall():
+            domain = row[0]
+            text = row[1]
+            pred = topicm.predict(clean_tokenizes_text(text))
+            print domain, pred
+            #self.cur.execute('''UPDATE features2 SET cluster_id=%d WHERE domain='%s';'''\
+            #                 %(pred, domain))
+        #self.con.commit()
+        model.clear()
+
+
 
     def similar_extract(self):
-        conceptextractor.extract_and_store(self.con, self.cur, self.clusters)
+        conceptextractor.extract_and_store(self.con, self.cur, self.topics.keys())
+
+
 
 if __name__ == '__main__':
     shal = shallots()
@@ -128,11 +191,11 @@ if __name__ == '__main__':
     '''extract urls (domains) and store in table'''
     #shal.fill_sitesite_relations()
     '''clean and concat text and store in sql'''
-    #shal.clean_text_store()
+    #shal.group_text_store()
     '''extract countries and store in table'''
     shal.fill_countries()  #now stores in features2
-    '''store clusters and their description'''
-    #shal.find_clusters_descr_and_store(n_topics = 10)
+    '''store clusters and their description'''    
+    shal.find_clusters_descr_and_store(n_topics = 10, n_domains = 100)
     sys.exit()
     '''handwork annotating legal/illegal'''
     '''within clusters, do similar concept extraction and store in table'''

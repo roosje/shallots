@@ -28,15 +28,16 @@ import unicodedata as ud
 #store pandas dataframe in sql
 
 def correct_country_mispelling(s):
-        with open("data/countrydict.csv", "rb") as info:
-            reader = csv.reader(info)
-            for row in reader:
-                matching = row[0].decode('utf-8').lower()
-                if matching == s.lower():
-                    return row[2]
-                if fuzz.ratio(s.lower(), matching) > 80:
-                    return row[2]
-        return s
+    
+    with open("data/countrydict.csv", "rb") as info:
+        reader = csv.reader(info)
+        for row in reader:
+            matching = row[0].decode('utf-8').lower()
+            if matching == s.lower():
+                return row[2]
+            if fuzz.ratio(s.lower(), matching) > 80:
+                return row[2]
+    return s
 
 def is_a_country2(s): 
     s = s.encode('utf-8').decode('utf-8')
@@ -54,13 +55,14 @@ def get_countries(s):
 
 def run(conn, engine):
     print "extracting countries from text and storing"
-    data = psql.read_sql("SELECT domain, text FROM features limit 10;", engine)
+    data = psql.read_sql("SELECT domain, text FROM features;", engine)
     for index, row in data.iterrows():
         countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
         for country in countries:
             data.loc[index, country]=True
 
     data = data.fillna(False)
+    print data.columns 
     psql.to_sql(data, "features2", con=engine, if_exists='replace', index=False)
 
 

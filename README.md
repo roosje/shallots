@@ -80,6 +80,13 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <i>Future work</i>
 <br>-Explore other possible interesting features -> weighting based on html tag
 
-
+<i>Dependencies</i>
+pip install pymongo
+conda install psycopg2
+pip install psycountry
+pip install fuzzywuzzy
+Geograpy2 -> install from <a href=https://github.com/Corollarium/geograpy2>github</a>, but comment out the reference to geograpy-nltk in the install script. 
+pip install python-Levenshtein
+conda install gensim
 
 How to use: 
