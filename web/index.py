@@ -50,7 +50,7 @@ def map():
 						  ON countries.domain=leg.domain;", app.engine)
 	print data.columns
 	datadict = {}
-	condition_leg = data[legal]==True
+	condition_leg = data['legal']==True
 	for cntry in data.columns[2:]:
 		condition_cntry = data[cntry]==True
 		total = data[condition_cntry].count()
