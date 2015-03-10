@@ -194,13 +194,13 @@ if __name__ == '__main__':
     # os.remove('data/countries.pkl')
     
     # EXTRACT COUNTRIES AND STORE IN TABLE
-    shal.fill_countries() 
+    #shal.fill_countries() 
 
     # STORE CLUSTERS AND THEIR DESCRIPTION
     # PLUS STORE CLUSTER ASSIGNMENTS  
-    shal.cur.execute("DELETE FROM clusters WHERE true;")
-    shal.con.commit() 
-    shal.find_topics_descr_and_store(n_topics = 10, n_domains = 200)
+    #shal.cur.execute("DELETE FROM clusters WHERE true;")
+    #shal.con.commit() 
+    #shal.find_topics_descr_and_store(n_topics = 10, n_domains = 200)
 
     # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE
     shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")

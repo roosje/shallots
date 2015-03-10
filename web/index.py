@@ -102,3 +102,5 @@ def test():
 if __name__ == '__main__':
 	app.conn, app.cursor, app.engine = run_on_start()
 	app.run(host='0.0.0.0', port=6969, debug=True)
+	app.cursor.close()
+	app.conn.close()
