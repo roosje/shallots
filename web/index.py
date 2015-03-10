@@ -2,8 +2,10 @@ from flask import Flask
 from flask import request
 from flask import render_template
 import json
-import pandas.io.sql as pdsql
+import pandas as pd
+import pandas.io.sql as psql
 from psycopg2 import connect
+from sqlalchemy import Table, MetaData, create_engine
 import os
 from math import ceil
 from operator import itemgetter
@@ -17,7 +19,9 @@ def run_on_start():
 	conn = connect(database=sql_dbname, user ='postgres', \
 						   password=password, host=server)
 	cursor = conn.cursor()
-	return [conn, cursor]
+	engine = create_engine("postgresql://postgres:%s@%s/%s" \
+					  %(password, server, sql_dbname))
+	return [conn, cursor, engine]
 
 @app.route('/')
 def index():
@@ -25,14 +29,35 @@ def index():
 
 @app.route('/graph')
 def graph():
-	#map : per country, count legal/illegal
-	#complicated querie on features and clusters table
 	app.cursor.execute("SELECT * FROM relations LIMIT 20;")
 	data_rel = app.cursor.fetchall()
 	app.cursor.execute("SELECT domain \
 						FROM features")
 	data_nodes = app.cursor.fetchall()
 	return render_template('graph_temp.html', nodes=data_nodes, rels=data_rel)
+
+
+@app.route('/map')
+def map():
+	#map : per country, count legal/illegal
+	alchcon = app.engine.connect().connection
+	data = psql.read_sql("SELECT * from countries \
+						  JOIN (SELECT legal, domain \
+								FROM clusters JOIN \
+								features ON \
+								clusters.cluster_id=features.cluster_id) \
+								AS leg \
+						  ON countries.domain=leg.domain;", app.engine)
+	print data.columns
+	datadict = {}
+	condition_leg = data[legal]==True
+	for cntry in data.columns[2:]:
+		condition_cntry = data[cntry]==True
+		total = data[condition_cntry].count()
+		legal = data[condition_cntry & condition_leg].count()
+		datadict[cntry] = float(legal)/total
+	# example: {Netherlands: 0.5}
+	return render_template('map_template.html', data=json.dumps(datadict))
 
 
 @app.route('/test')
@@ -75,5 +100,5 @@ def test():
 
 
 if __name__ == '__main__':
-	app.conn, app.cursor = run_on_start()
+	app.conn, app.cursor, app.engine = run_on_start()
 	app.run(host='0.0.0.0', port=6969, debug=True)

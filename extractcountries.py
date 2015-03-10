@@ -65,6 +65,7 @@ def run(conn, engine):
 
     data = data.fillna(False)
     data.pop('text')
+    data.to_pickle('data/countries.pkl')
     print data.columns 
     psql.to_sql(data, "countries", con=engine, if_exists='replace', index=False)
 

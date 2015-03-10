@@ -173,7 +173,7 @@ class shallots(object):
 
 if __name__ == '__main__':
     shal = shallots()
-    
+
     # ADD "LANGUAGE" FIELD TO MONGODB
     #shal.add_languages_mongo(stepsize =1000, start=0)
     
@@ -190,6 +190,9 @@ if __name__ == '__main__':
     # CLEAN AND CONCAT TEXT AND STORE IN TABLE
     #shal.group_text_store()
 
+    # REMOVE THIS FILE TO START OVER WITH EXTRACTING COUNTRIES
+    # os.remove('data/countries.pkl')
+    
     # EXTRACT COUNTRIES AND STORE IN TABLE
     shal.fill_countries() 
 
