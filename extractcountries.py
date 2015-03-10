@@ -57,15 +57,19 @@ def get_countries(s):
 
 def run(conn, engine):
     print "extracting countries from text and storing"
-    data = psql.read_sql("SELECT domain, text FROM features;", engine)
-    for index, row in data.iterrows():
-        countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
-        for country in countries:
-            data.loc[index, country]=True
+    try:
+        data = pd.read_pickle('data/countries.pkl')
+    except:
+        data = psql.read_sql("SELECT domain, text FROM features;", engine)
+        for index, row in data.iterrows():
+            countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
+            for country in countries:
+                data.loc[index, country]=True
 
-    data = data.fillna(False)
-    data.pop('text')
-    data.to_pickle('data/countries.pkl')
+        data = data.fillna(False)
+        data.pop('text')
+        data.to_pickle('data/countries.pkl')
+
     print data.columns 
     psql.to_sql(data, "countries", con=engine, if_exists='replace', index=False)
 
