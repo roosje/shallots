@@ -50,8 +50,10 @@ def is_a_country2(s):
 
 def get_countries(s):
     places = geograpy2.get_place_context(text=s)
-    return set([correct_country_mispelling(place) for place in set(places.names)\
-        if is_a_country2(place)])
+    return set([correct_country_mispelling(place)\
+            .replace("(","").replace(")","") \
+            for place in set(places.names)\
+            if is_a_country2(place)])
 
 def run(conn, engine):
     print "extracting countries from text and storing"
@@ -64,7 +66,7 @@ def run(conn, engine):
     data = data.fillna(False)
     data.pop('text')
     print data.columns 
-    psql.to_sql(data, "features2", con=engine, if_exists='replace', index=False)
+    psql.to_sql(data, "countries", con=engine, if_exists='replace', index=False)
 
 
 

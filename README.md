@@ -62,7 +62,9 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Clustering (kmeans?)
 
 <img src='images/dataflow.png' width=800>
-<br>Chart for data viz will follow
+
+<br>Chart for data viz
+<img src='images/vizflow.png' width=800>
 
 <i>Challenges I ran into:</i>
 <br>-Getting it to work on amazon & storage > a lot of crashes

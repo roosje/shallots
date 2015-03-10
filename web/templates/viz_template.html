@@ -1,14 +1,28 @@
 <html>
 <head>
     <title>Shallots</title>
+    <style>
+
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+</style>
 </head>
-<table border="1px solid black" style="width:300px">
-{% for clname, cnt in data %}
-    <tr>
-    <td>{{ clname }}</td>
-    <td>{{ cnt }}</td>
-    </tr>
+<h1>Domains per topic</h1>
+<div class="chart">
+{% for wide, cnt, clname in data %}
+<div style="width: {{ wide }}px;">{{ clname }}</div>
 {% endfor %}
+</div>
 
 </body>
 </html>
+
+
+

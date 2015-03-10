@@ -6,6 +6,7 @@ import setup_postgres
 import extractcountries
 import topic_model
 import conceptextractor
+from clean_tokenize import *
 
 import pymongo
 from pymongo import MongoClient
@@ -36,7 +37,7 @@ class shallots(object):
                            password=password, host=server)
         self.con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cur = self.con.cursor()
-        self.topics = {}
+        self.n_topics = 10
         self.domains = set()
         self.engine = create_engine("postgresql://postgres:%s@%s/%s" \
                       %(password, server, self.sql_dbname))
@@ -131,52 +132,42 @@ class shallots(object):
         extractcountries.run(self.con, self.engine)
 
 
-
-    def clean_tokenized_text(self, doc, rx):
-        #cleaning punctuation and non alpha content
-        text = rx.sub(" ", doc).strip()
-        stoplist = stopwords.words('english')
-        #lemmatizing
-        lemma = WordNetLemmatizer()
-        split_cleaned_text = [lemma(word.lower(), pos='v') for word in text.split() if \
-                       (word.isalpha() and word not in stoplist)]
-        return split_cleaned_text
-
-
-
     def find_topics_descr_and_store(self, n_topics, n_domains):
         topicm = topic_model.topic_model()
 
         rx = re.compile('\W+')
-        self.cur.execute("SELECT text FROM features LIMIT %d \
-                          ORDER BY RAND();" %(n_domains))
+        self.cur.execute("SELECT text FROM features \
+                          ORDER BY RANDOM() \
+                          LIMIT %d;" %(n_domains))
         texts = []
         for row in self.cur.fetchall():
-            text = clean_tokenized_text(row[0])
+            text = clean_tokenized_text(row[0], rx)
             texts.append(text)
         #build model on n_domains rows
-        self.topics = topicm.model(texts, n_topics)
-        for k, v in self.topics.iteritems():
+        tpcs = topicm.model(texts, n_topics)
+        for k, v in tpcs.iteritems():
+            # add 1 to cluster id to not have cluster with nr 0
             descr = " ".join(v)
             print k, descr
-            #self.cur.execute("INSERT INTO clusters VALUES(%d, %s);",(k, descr))
-        #self.con.commit()
+            self.cur.execute("INSERT INTO clusters (cluster_id, description) \
+                              VALUES(%d, '%s');" %(k+1, descr))
+        self.con.commit()
+
         #run on everything for assigning clusters
         self.cur.execute("SELECT domain, text FROM features;")
         for row in self.cur.fetchall():
             domain = row[0]
-            text = row[1]
-            pred = topicm.predict(clean_tokenizes_text(text))
-            print domain, pred
-            #self.cur.execute('''UPDATE features2 SET cluster_id=%d WHERE domain='%s';'''\
-            #                 %(pred, domain))
-        #self.con.commit()
-        model.clear()
-
+            text = clean_tokenized_text(row[1], rx)
+            pred = topicm.predict(text)
+            #print domain, pred
+            self.cur.execute('''UPDATE features SET cluster_id=%d WHERE domain='%s';'''\
+                             %(pred+1, domain))
+        self.con.commit()
 
 
     def similar_extract(self):
-        conceptextractor.extract_and_store(self.con, self.cur, self.topics.keys())
+        topics = range(1, self.n_topics + 1)
+        conceptextractor.extract_and_store(self.con, self.cur, topics)
 
 
 
@@ -200,14 +191,17 @@ if __name__ == '__main__':
     #shal.group_text_store()
 
     # EXTRACT COUNTRIES AND STORE IN TABLE
-    #shal.fill_countries()  #now stores in features2 without text
+    shal.fill_countries() 
 
     # STORE CLUSTERS AND THEIR DESCRIPTION
-    # PLUS STORE CLUSTER ASSIGNMENTS   
-    shal.find_topics_descr_and_store(n_topics = 10, n_domains = 100)
-    sys.exit()
+    # PLUS STORE CLUSTER ASSIGNMENTS  
+    shal.cur.execute("DELETE FROM clusters WHERE true;")
+    shal.con.commit() 
+    shal.find_topics_descr_and_store(n_topics = 10, n_domains = 200)
 
-    # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE'''
+    # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE
+    shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
+    shal.con.commit() 
     shal.similar_extract()
     
     # CLOSE ALL THE CONNECTIONS

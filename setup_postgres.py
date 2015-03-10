@@ -43,7 +43,7 @@ def create_tables(con, cur):
     
     # CREATE TABLE CLUSTERWORDVECS  
     cur.execute("CREATE TABLE clusterwordvecs (cluster_id INTEGER, \
-                 word_1 VARCHAR(10), word_2 VARCHAR(10), simscore REAL);")
+                 word_1 VARCHAR(20), word_2 VARCHAR(20), simscore REAL);")
     con.commit()
     
 

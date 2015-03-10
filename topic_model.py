@@ -47,6 +47,7 @@ class topic_model(object):
         Returns the most likely topic based on the given set of words.
         '''
         bow_vector = self.dictionary.doc2bow(tokenized)
-        return max(self.lda[self.tfidf[bow_vector]], key=itemgetter(1)[0])
+        lst = self.lda[self.tfidf[bow_vector]]
+        return max(lst, key=itemgetter(1))[0]
 
     
