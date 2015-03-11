@@ -50,10 +50,9 @@ def is_a_country2(s):
 
 def get_countries(s):
     places = geograpy2.get_place_context(text=s)
-    return set([correct_country_mispelling(place)\
-            .replace("(","").replace(")","") \
-            for place in set(places.names)\
-            if is_a_country2(place)])
+    return set([pycountry.countries.get(name=correct_country_mispelling(place))\
+                .alpha3 for place in set(places.names)\
+                if is_a_country2(place)])
 
 def run(conn, engine):
     print "extracting countries from text and storing"

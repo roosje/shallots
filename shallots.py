@@ -191,10 +191,10 @@ if __name__ == '__main__':
     #shal.group_text_store()
 
     # REMOVE THIS FILE TO START OVER WITH EXTRACTING COUNTRIES
-    # os.remove('data/countries.pkl')
+    os.remove('data/countries.pkl')
     
     # EXTRACT COUNTRIES AND STORE IN TABLE
-    #shal.fill_countries() 
+    shal.fill_countries() 
 
     # STORE CLUSTERS AND THEIR DESCRIPTION
     # PLUS STORE CLUSTER ASSIGNMENTS  
@@ -203,9 +203,9 @@ if __name__ == '__main__':
     #shal.find_topics_descr_and_store(n_topics = 10, n_domains = 200)
 
     # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE
-    shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
-    shal.con.commit() 
-    shal.similar_extract()
+    #shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
+    #shal.con.commit() 
+    #shal.similar_extract()
     
     # CLOSE ALL THE CONNECTIONS
     shal.cur.close()

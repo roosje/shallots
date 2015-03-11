@@ -48,17 +48,15 @@ def map():
 								clusters.cluster_id=features.cluster_id) \
 								AS leg \
 						  ON countries.domain=leg.domain;", app.engine)
-	print data.columns
-	datadict = {}
+	datalst = []
 	condition_leg = data['legal']==True
-	for cntry in data.columns[2:]:
+	for cntry in data.columns[1:-2]:
 		condition_cntry = data[cntry]==True
-		total = data[condition_cntry].count()
-		legal = data[condition_cntry & condition_leg].count()
-		datadict[cntry] = float(legal)/total
+		total = len(data[condition_cntry])
+		legal = len(data[condition_cntry & condition_leg])
+		datalst.append([cntry, round(float(legal)/total, 1)])
 	# example: {Netherlands: 0.5}
-	return render_template('map_template.html', data=json.dumps(datadict))
-
+	return render_template('map4_template.html', data=datalst)
 
 @app.route('/test')
 def test():

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
+
+  <div class="map" style='height:600px;' id="projection_map"></div>
+  
+     <script>
+       //basic map config with custom fills, mercator projection
+      var map = new Datamap({
+        scope: 'world',
+        element: document.getElementById('projection_map'),
+        //projection: 'orthographic',
+        
+        fills: {
+          defaultFill: '#b2b2b2',
+           0: '#008833',
+          .1: '#339933',
+          .2: '#66AA33',
+          .3: '#99BB33',
+          .4: '#CCCC33',
+          .5: '#DDCC33',
+          .6: '#FFBB33',
+          .7: '#FF9933',
+          .8: '#FF6633',
+          .9: '#FF3333',
+           1: '#FF0033'
+        },
+        
+        projectionConfig: {
+          rotation:[91,-30]
+        },
+      
+        data: {
+          {% for cntr, score in data %}
+         {{ cntr }}: {fillKey: {{ score }} },
+          {% endfor %}    
+        }
+      })
+      
+      map.graticule();
+       
+     </script>
+</body>
