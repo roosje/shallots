@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>    
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Shallots Dashboard</title>
+    <!--<script src="http://d3js.org/d3.v2.js"></script>-->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
+    <style type="text/css">
+
+#pieChart {    
+    position:absolute;
+    top:100px;
+    left:10px;
+    width:400px;
+    height: 400px; 
+}
+
+
+#wordCloud {    
+    position:absolute;
+    top:100px;
+    left:410px;
+    right:10px;
+    height: 400px;
+}
+
+#map {
+    position:absolute;
+    top:520px;
+    left:10px;
+    width:90%;
+    height: 500px;
+}
+
+.slice {
+   font-size: 12pt;
+   font-family: Verdana;
+   fill: white; //svg specific - instead of color
+   font-weight: bold;   
+        } 
+
+.title {
+     font-family: Verdana;
+    font-size: 15px;    
+        
+}
+
+h1 {font-family: Verdana;}
+
+  
+table {
+    border-collapse:collapse;
+    border: 0px;    
+    font-family: Verdana;   
+    color: #5C5558;
+    font-size: 12px;
+    text-align: right;          
+}
+
+td {
+    padding-left: 10px;     
+}
+                 
+    </style>
+  </head>
+  <body>
+    <H1>Shallots</H1>
+  
+    <div id="pieChart"></div>
+    <div id="wordCloud"></div>
+    <div id="map"></div>
+
+    <script type="text/javascript">
+    
+/*
+################ FORMATS ##################
+-------------------------------------------
+*/
+
+
+var     formatAsPercentage = d3.format("%"),
+        formatAsPercentage1Dec = d3.format(".1%"),
+        formatAsInteger = d3.format(",")
+        ;
+
+/*
+############# PIE CHART ###################
+-------------------------------------------
+*/
+
+function dsPieChart(){
+
+    var dataset = [
+          {% for measure, clname in dataPie %}
+          {category: "{{ clname }}", measure: {{ measure }} },
+          {% endfor %}   
+          ]
+          ;
+
+    var    width = 400,
+           height = 400,
+           outerRadius = Math.min(width, height) / 2,
+           innerRadius = outerRadius * .999,   
+           // for animation
+           innerRadiusFinal = outerRadius * .5,
+           innerRadiusFinal3 = outerRadius* .45,
+           color = d3.scale.category20()    //builtin range of colors
+           ;
+        
+    var vis = d3.select("#pieChart")
+         .append("svg:svg")              //create the SVG element inside the <body>
+         .data([dataset])                   //associate our data with the document
+             .attr("width", width)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+             .attr("height", height)
+                .append("svg:g")                //make a group to hold our pie chart
+             .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+                ;
+                
+   var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+            .outerRadius(outerRadius).innerRadius(innerRadius);
+   
+   // for animation
+   var arcFinal = d3.svg.arc().innerRadius(innerRadiusFinal).outerRadius(outerRadius);
+   var arcFinal3 = d3.svg.arc().innerRadius(innerRadiusFinal3).outerRadius(outerRadius);
+
+   var pie = d3.layout.pie()           //this will create arc data for us given a list of values
+        .value(function(d) { return d.measure; });    //we must tell it out to access the value of each element in our data array
+
+   var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+        .data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+        .enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+            .append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+               .attr("class", "slice")    //allow us to style things in the slices (like text)
+               .on("mouseover", mouseover)
+                    .on("mouseout", mouseout)
+                    .on("click", up)
+                    ;
+                    
+        arcs.append("svg:path")
+               .attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
+               .attr("d", arc)     //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+                    .append("svg:title") //mouseover title showing the figures
+                   .text(function(d) { return d.data.category + ": " + formatAsPercentage(d.data.measure); });          
+
+        d3.selectAll("g.slice").selectAll("path").transition()
+                .duration(750)
+                .delay(10)
+                .attr("d", arcFinal )
+                ;
+    
+      // Add a label to the larger arcs, translated to the arc centroid and rotated.
+      // source: http://bl.ocks.org/1305337#index.html
+      arcs.filter(function(d) { return d.endAngle - d.startAngle > .2; })
+            .append("svg:text")
+          .attr("dy", ".35em")
+          .attr("text-anchor", "middle")
+          .attr("transform", function(d) { return "translate(" + arcFinal.centroid(d) + ")rotate(" + angle(d) + ")"; })
+          //.text(function(d) { return formatAsPercentage(d.value); })
+          .text(function(d) { return d.data.category; })
+          ;
+       
+       // Computes the label angle of an arc, converting from radians to degrees.
+        function angle(d) {
+            var a = (d.startAngle + d.endAngle) * 90 / Math.PI - 90;
+            return a > 90 ? a - 180 : a;
+        }
+            
+        
+        // Pie chart title          
+        vis.append("svg:text")
+            .attr("dy", ".35em")
+          .attr("text-anchor", "middle")
+          .text("Found topics")
+          .attr("class","title")
+          ;         
+
+
+        
+    function mouseover() {
+      d3.select(this).select("path").transition()
+          .duration(750)
+                    //.attr("stroke","red")
+                    //.attr("stroke-width", 1.5)
+                    .attr("d", arcFinal3)
+                    ;
+    }
+    
+    function mouseout() {
+      d3.select(this).select("path").transition()
+          .duration(750)
+                    //.attr("stroke","blue")
+                    //.attr("stroke-width", 1.5)
+                    .attr("d", arcFinal)
+                    ;
+    }
+    
+    function up(d, i) {
+    
+                /* update bar chart when user selects piece of the pie chart */
+                //updateBarChart(dataset[i].category);
+                updateBarChart(d.data.category, color(i));
+                updateWordcloud(d.data.category, color(i));
+             
+    }
+}
+
+dsPieChart();
+
+
+
+/*
+############# MAP ###################
+-------------------------------------------
+*/
+
+function dsMap(){
+
+  var map = new Datamap({
+        scope: 'world',
+        element: document.getElementById('map'),
+        //projection: 'orthographic',
+        projection: 'equirectangular',
+        
+        fills: {
+          defaultFill: '#b2b2b2',
+           0: '#008833',
+          .1: '#339933',
+          .2: '#66AA33',
+          .3: '#99BB33',
+          .4: '#CCCC33',
+          .5: '#DDCC33',
+          .6: '#FFBB33',
+          .7: '#FF9933',
+          .8: '#FF6633',
+          .9: '#FF3333',
+           1: '#FF0033'
+        },
+        
+        projectionConfig: {
+          rotation:[91,-30]
+        },
+
+        geographyConfig: {
+          hideAntarctica: true,
+          popupTemplate: function(geography, data) { //this function should just return a string
+          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+          },
+          popupOnHover: true,
+          highlightOnHover: true,
+          highlightFillColor: '#000000',
+          highlightBorderColor: '#000000'
+
+        },
+      
+        data: {
+          {% for cntr, score in datamap %}
+          {{ cntr }}: {fillKey: {{ score }} },
+          {% endfor %}    
+        }
+      })
+      
+      //map.graticule();
+    }
+
+  dsMap();
+
+
+/*
+############# WORD CLOUD ##################
+-------------------------------------------
+*/
+
+
+
+
+ /* ** UPDATE CHART ** */
+ 
+/* updates bar chart on request */
+function updateWordCloud(group, colorChosen) {
+
+}
+
+    </script>
+  </body>
+</html>

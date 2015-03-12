@@ -61,9 +61,11 @@ def run(conn, engine):
     except:
         data = psql.read_sql("SELECT domain, text FROM features;", engine)
         for index, row in data.iterrows():
-            countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
-            for country in countries:
-                data.loc[index, country]=True
+            if len(row['text'])>0:
+                countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
+                for country in countries:
+                    data.loc[index, country]=True
+
 
         data = data.fillna(False)
         data.pop('text')

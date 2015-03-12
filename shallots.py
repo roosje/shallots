@@ -31,13 +31,13 @@ class shallots(object):
         server = os.environ['aws_server']
         
         self.client = MongoClient(server, 27017)
-        self.mongo_db = self.client.scrapy.onions
+        self.mongo_db = self.client.shallots.onions
         self.sql_dbname= 'shallots'
         self.con = connect(database=self.sql_dbname, user ='postgres', \
                            password=password, host=server)
         self.con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         self.cur = self.con.cursor()
-        self.n_topics = 10
+        self.n_topics = 15
         self.domains = set()
         self.engine = create_engine("postgresql://postgres:%s@%s/%s" \
                       %(password, server, self.sql_dbname))
@@ -172,6 +172,7 @@ class shallots(object):
 
 
 if __name__ == '__main__':
+    print "starting pipeline"
     shal = shallots()
 
     # ADD "LANGUAGE" FIELD TO MONGODB
@@ -191,21 +192,21 @@ if __name__ == '__main__':
     #shal.group_text_store()
 
     # REMOVE THIS FILE TO START OVER WITH EXTRACTING COUNTRIES
-    os.remove('data/countries.pkl')
+    #os.remove('data/countries.pkl')
     
     # EXTRACT COUNTRIES AND STORE IN TABLE
-    shal.fill_countries() 
+    #shal.fill_countries() 
 
     # STORE CLUSTERS AND THEIR DESCRIPTION
     # PLUS STORE CLUSTER ASSIGNMENTS  
-    #shal.cur.execute("DELETE FROM clusters WHERE true;")
-    #shal.con.commit() 
-    #shal.find_topics_descr_and_store(n_topics = 10, n_domains = 200)
+    shal.cur.execute("DELETE FROM clusters WHERE true;")
+    shal.con.commit() 
+    shal.find_topics_descr_and_store(n_topics = shal.n_topics, n_domains = 400)
 
     # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE
-    #shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
-    #shal.con.commit() 
-    #shal.similar_extract()
+    shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
+    shal.con.commit() 
+    shal.similar_extract()
     
     # CLOSE ALL THE CONNECTIONS
     shal.cur.close()
