@@ -169,6 +169,11 @@ class shallots(object):
         topics = range(1, self.n_topics + 1)
         conceptextractor.extract_and_store(self.con, self.cur, topics)
 
+    def prepare_for_web(self):
+        rx = re.compile('\W+')  
+        data = psql.read_sql("SELECT cluster_id, text from features;", engine)
+        data['text'] = data['text'].apply(lambda x: (clean_tokenized_text(x, rx)))
+        data.to_csv('web/data/worddata.tsv', sep='\t')
 
 
 if __name__ == '__main__':
@@ -207,6 +212,8 @@ if __name__ == '__main__':
     shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
     shal.con.commit() 
     shal.similar_extract()
+
+    shal.prepare_for_web() 
     
     # CLOSE ALL THE CONNECTIONS
     shal.cur.close()
