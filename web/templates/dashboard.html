@@ -9,50 +9,51 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <link href="/static/bootstrap.css" rel="stylesheet">
     <link href="/static/scrolling-nav.css" rel="stylesheet">
-    <!--<script src="http://d3js.org/d3.v2.js"></script>-->
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/queue.v1.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
-    <script type="text/javascript" src="d3/d3.geom.js"></script>
-    <script type="text/javascript" src="d3/d3.layout.js"></script>
-
     <script src="/static/d3.layout.cloud.js"></script>
+    <script src="https://rawgit.com/d3/d3-plugins/a77fd4fc7f548949b45ff320ca914c556ccbd7ae/cie/cie.js"></script>
     <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
 
     <style type="text/css">
 
       #pieChart {    
           position:absolute;
-          top:10px;
-          left:10px;
+          top:0px;
+          left:30px;
           width:300px;
-          height: 300px; 
-          z-index: 1;
+          height: 400px; 
+          z-index: 2;
       }
       #wordCloud {    
           position:absolute;
-          top:10px;
-          left:10px;
-          width:300px;
-          height: 300px;
-      }
+          top:50px;
+          left:40px;
+          width:550px;
+          height: 340px;
+          z-index:1;
+          background-color:white; 
+          transition:           left 500ms ease;
+            -moz-transition:    left 500ms ease;
+            -ms-transition:     left 500ms ease;
+            -o-transition:      left 500ms ease;
+            -webkit-transition: left 500ms ease;
+        }
+
       #graph {
           position:absolute;
-          top:-80px;
-          left:280px;
+          top:0px;
+          left:350px;
           width: 800px;
-          height: 500px;
+          height: 400px;
       }
 
       #map {
           position:absolute;
-          top:370px;
+          top:420px;
           width:100%;
-          height: 600px;
-      }
-
-      svg {
-        height: 500px;
+          height: 500px;
       }
 
       .slice {
@@ -72,10 +73,6 @@
         stroke-opacity: .5;
       }
 
-      rect {
-      fill: none;
-      pointer-events: all;
-      }
 
     </style>
 
@@ -99,13 +96,16 @@ function dsPieChart(error, dataset){
           //dataexample = {category: "name", measure:"rate"}
 
     var    width = 300,
-           height = 300,
+           height = 400,
            outerRadius = Math.min(width, height) / 2,
            innerRadius = outerRadius * .999,   
            // for animation
            innerRadiusFinal = outerRadius * .5,
            innerRadiusFinal3 = outerRadius* .45,
-           color = d3.scale.category20()    //builtin range of colors
+           color = d3.scale.linear()
+          .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+          .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
+          .interpolate(d3.cie.interpolateLch);   //builtin range of colors
            dataset = dataset
            ;
         
@@ -117,6 +117,12 @@ function dsPieChart(error, dataset){
          .append("svg:g")                //make a group to hold our pie chart
          .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")")    //move the center of the pie chart from 0, 0 to radius, radius
           ;
+
+   vis.append("circle")
+                          .attr("cx", 0)
+                          .attr("cy", 0)
+                          .attr("r", 80)
+                          .attr("fill", "#F1F1F1");
                 
    var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
             .outerRadius(outerRadius).innerRadius(innerRadius);
@@ -195,13 +201,11 @@ function dsPieChart(error, dataset){
     function up(d, i) {
                 /* update bar chart when user selects piece of the pie chart */
                 //updateBarChart(dataset[i].category);
-                slideoutwordcloud(d.data.category, color(i));
-                updateWordcloud(d.data.category, color(i));
+                //slideoutwordcloud(d.data.category);
+                updateWordcloud(d.data.category);
              
     }
 }
-
-
 
 /*
 ############# MAP ###################
@@ -253,7 +257,7 @@ function dsMap(){
         }
       })
       
-      map.graticule();
+      //map.graticule();
     }
 
 
@@ -263,34 +267,32 @@ function dsMap(){
 -------------------------------------------
 */
 
-/*
-function dsCloud(error, nodes, links){
 
-  d3.json('data/worddata.json', function(error, data) {
+function dsCloud(error, data){
 
-  var fill = d3.scale.category20();
+  var fill = d3.scale.category20c();
 
-  d3.layout.cloud().size([400, 400])
+  d3.layout.cloud().size([550, 340])
       .words(data.map(function(d) {
-        return {text: d.text, size: 10 + Math.random() * 90};
+        return {text: d[0], size: Math.sqrt(d[1])*2};
       }))
       .padding(5)
-      .rotate(function() { return ~~(Math.random() * 2) * 90; })
+      //.rotate(function() { return ~~(Math.random() * 2) * 90; })
       //.font("Impact")
-      .text(function(d) { return d.text;})
       .fontSize(function(d) { return d.size; })
       .on("end", draw)
       .start();
 
   function draw(words) {
-    d3.select("wordCloud").append("svg")
-        .attr("width", 400)
-        .attr("height", 400)
-      .append("g")
+    d3.select("#wordCloud").append("svg")
+        .attr("id", "cloudsvg")
+        .attr("width", 550)
+        .attr("height", 340)
+        .append("g")
         .attr("transform", "translate(150,150)")
-      .selectAll("text")
+        .selectAll("text")
         .data(words)
-      .enter().append("text")
+        .enter().append("text")
         .style("font-size", function(d) { return d.size + "px"; })
         .style("font-family", "Impact")
         .style("fill", function(d, i) { return fill(i); })
@@ -299,10 +301,19 @@ function dsCloud(error, nodes, links){
           return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
         })
         .text(function(d) { return d.text; });
-})}
+}}
 
+     /* ** UPDATE WORDCLOUD ** */
+     
+    /* updates on request */
+    function updateWordcloud(group) {
+      //throw everything away
+      //build new wordcloud with new data
+      d3.select("#cloudsvg").remove();
+      d3.json('/static/data/worddata'+group+'.json', dsCloud);
+      document.getElementById('wordCloud').style.left = '400px';
+    }
 
-*/
 
 /*
 ############# GRAPH ##################
@@ -312,102 +323,53 @@ function dsCloud(error, nodes, links){
 function dsGraph(error, nodes, links) {
     var w = 800,
         h = 400,
-        color = d3.scale.category20c();
+        color = d3.scale.linear()
+          .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+          .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
+          .interpolate(d3.cie.interpolateLch);
 
     var force = d3.layout.force()
-        .gravity(0.06)
-        .charge(-150)
-        .linkDistance(w/5)
+        //.gravity(0.06)
+        .charge(-90)
+        .linkDistance(120)
+        //.linkStrength(0.01)
         .size([w, h]);
 
-    var svg = d3.select("#graph").append("svg:svg")
+    var svg = d3.select("#graph").append("svg")
         .attr("width", w)
-        .attr("height", h)
-        .append("svg:g")
-        .attr("transform", "translate(" + w / 8 + "," + h / 6 + ")");
+        .attr("height", h);
 
-    svg.append("svg:rect")
-    .attr("width", w)
-    .attr("height", h)
-    .style("stroke", "#FFF")
-    .style("fill", "#FFF");
+    force.nodes(nodes).links(links).start()
 
-    var link = svg.selectAll("line")
-      .data(links)
-      .enter().append("svg:line")
-      .attr("class", "link")
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-    var node = svg.selectAll("circle")
-      .data(nodes)
-      .enter().append("svg:circle")
-      .attr("class", "node")
-      //.attr("r", 3)
-      .attr("r", function(d) {return Math.sqrt(d.size) || 4.5; })
-      .style("fill", function(d) { return color(d.group); })
-      .call(force.drag);
-
-  force
-      .nodes(nodes)
-      .links(links)
-      .on("tick", tick)
-      .start();
-
-  function tick() {
-    node.attr("cx", function(d) { return d.x = Math.max(5, Math.min(w - 5, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(5, Math.min(h - 5, d.y)); });
-
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-  };
-
-}
-
-/*
-
-  var link = svg.selectAll(".link")
+    var link = svg.selectAll(".link")
       .data(links)
       .enter().append("line")
       .attr("class", "link")
       .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-  var node = svg.selectAll(".node")
+    var node = svg.selectAll(".node")
       .data(nodes)
       .enter().append("circle")
       .attr("class", "node")
-      //.attr("r", 3)
-      .attr("r", function(d) {return Math.sqrt(d.size)/1.5 || 4.5; })
+      .attr("r", function(d) {return Math.sqrt(d.size)*2 || 4.5; })
       .style("fill", function(d) { return color(d.group); })
       .call(force.drag);
 
-  node.append("title")
-      .text(function(d) { return d.domain; });
+    node.append("title")
+      .text(function(d) { return d.name; });
 
-  force.on("tick", function() {
+    force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
-    
+
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
-  });
+    });
 
-  force.start();
-}*/
-
-     /* ** UPDATE WORDCLOUD ** */
-     
-    /* updates on request */
-    function updateWordCloud(group, colorChosen) {
-
-    }
-
-    function slideoutwordcloud(group, colorChosen) {
-
-    }
+   
+}
 
     </script>
   </head>
@@ -450,11 +412,13 @@ function dsGraph(error, nodes, links) {
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div id="pieChart"></div>
-                    <div id="graph"></div>
-                    <!--<div id="wordCloud"></div>-->
-                    <div id="map"></div>
-                    
+                  <svg width="100%", height="400">
+                    <rect width="100%", height="100%", style="fill:white;stroke:black;stroke-width:5;opacity:0.5" />
+                    <div id="pieChart"><h3>Deep web cluster size</h3></div>
+                    <div id="graph"><h3>Graph of url-references between topics</h3></div>
+                    <div id="wordCloud"></div>
+                    <div id="map"><h3>Legal/illegal related mention of countries</h3></div>
+                  </svg>
                 </div>
             </div>
         </div>
@@ -466,6 +430,24 @@ function dsGraph(error, nodes, links) {
             <div class="row">
                 <div class="col-lg-12">
                     <h1>About Shallots</h1>
+                    <p>
+                      "Shining the light on the deep web, analysis of what is beneath the surface of the internet"
+                    </p>
+                    <p>
+                      <i>Summary</i>
+                      The deep web has a lot of secrets. My goal is to give some insight in what is going on there. Through visauls I show the main topics that are discussed there and give insight in their meaning. I divided the clusters into 2 groups (legal/illegal) and analysed if they behave like 2 separate islands or are actually connected. And lastly made a map of the countries talked about in relation to the legal/illegal clusters. 
+                    </p>
+                    <p>
+                      <i>Description</i>
+                      Tor helps anonymous online communication. It is meant to provide safety for vulnerable internet users such as political activists. The downside, however, is that it facilitates criminals that use servers that can only receive connections through Tor, to make it hard to get identified. Those servers are called hidden services and can be accessed through an .onion address. 
+                      Not much research has been done on what is going on in this "deep web". There was some content clustering, which showed that both legal and illegal content is available on websites. It is not clear how well connected those 2 groups are. 
+                      </p>
+                      <p>
+                      <i>Motivation</i>
+                      In 2011 I first encountered the illegal side of the deep web. Since then it kept surprising me that tools and analysts that focus on the internet, normally don't take the deep web into account. They actually should IMHO because this is especially the place where things can come to the surface since users feel save by the anonymizing function of Tor. 
+                      It is an ideal way to combine my interest in the deep web with my preference for NLP, visualizations and social network analysis (SNA) into one project. And it can grow along the way, if there is time, looking further into insights I get during the analysis.<br>
+                      <a href="https://github.com/roosje/shallots">The repo</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -477,6 +459,11 @@ function dsGraph(error, nodes, links) {
             <div class="row">
                 <div class="col-lg-12">
                     <h1>Contact</h1>
+                    <p>
+                      <a href="https://github.com/roosje/">My github</a><br>
+                      <a href="https://www.linkedin.com/in/htroos">LinkedIn</a><br>
+                      <a href="https://twitter.com/r00sj3">Twitter</a><br>
+                    </p>
                 </div>
             </div>
         </div>
@@ -488,10 +475,19 @@ function dsGraph(error, nodes, links) {
       .await(dsPieChart);
     dsMap();
     queue()
-      .defer(d3.json, '/static/data/nodes.json')
-      .defer(d3.json, '/static/data/links.json')
+      .defer(d3.json, '/static/data/nodes2.json')
+      .defer(d3.json, '/static/data/links2.json')
       .await(dsGraph);
-    //dsCloud();
+    queue()
+      .defer(d3.json, '/static/data/startwordcloud.json')
+      .await(dsCloud);
+
+    document.getElementById('wordCloud').addEventListener('click', function()
+    {
+        ( this.style.left == '40px' || this.style.left == '' )
+        ? this.style.left = '400px': this.style.left = '40px'; 
+        d3.select("#cloudsvg").remove();
+    }, false);
     </script>
     
      <!-- jQuery -->

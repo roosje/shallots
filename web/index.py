@@ -9,6 +9,8 @@ from sqlalchemy import Table, MetaData, create_engine
 import os
 from math import ceil
 from operator import itemgetter
+import itertools
+from collections import Counter
 import re
 import numpy as np
 import sys
@@ -57,78 +59,63 @@ def index():
 						FROM features2 \
 						GROUP BY cluster_id) AS cl \
 					ON cl.cluster_id=clusters.cluster_id;")'''
-	dataPie = psql.read_sql("SELECT cluster_id-1 as category, \
+	'''dataPie = psql.read_sql("SELECT cluster_id-1 as category, \
 						ROUND(COUNT(*)*1.0/SUM(COUNT(*)) OVER(),2) AS measure \
 						FROM features \
 						GROUP BY cluster_id;", app.engine)
-	#print dataPie.head()
-	dataPie.to_json('static/data/piedata.json', orient="records")
+	print dataPie.head(15)
+	dataPie.to_json('static/data/piedata.json', orient="records")'''
 
 	# CODE FOR GRAPH
-	dataNodes = psql.read_sql("SELECT cluster_id-1 as index2, domain \
-						FROM features", app.engine)
-	dataNodes['group'] = pd.Series(np.random.randint(1,16, size=len(dataNodes)))
-	dataNodes['size'] = pd.Series(np.random.randint(1, 101, size=len(dataNodes)))
-	dataNodes['index'] = dataNodes.index
-	#dataNodes.rename(columns={'cluster_id':'index'}, inplace=True)
-	dataNodes = dataNodes.set_index('domain')
-	dataLinks = psql.read_sql("SELECT * FROM relations;", app.engine)
-	dataLinks['value']= pd.Series(np.random.randint(1, 6, size=len(dataLinks)))
-	dataLinks = dataLinks.join(dataNodes['index'], on='domain_from')
-	dataLinks.rename(columns={'index':'source'}, inplace=True)
-	dataLinks = dataLinks.join(dataNodes['index'], on='domain_to')
-	dataLinks.rename(columns={'index':'target'}, inplace=True)
-	dataNodes = dataNodes.reset_index()
-	dataNodes.to_json('static/data/nodes.json', orient="records")
-	dataLinks.to_json('static/data/links.json', orient="records")
+	# FOR NETWORK ON CLUSTERS
+	'''dataNodes2 = psql.read_sql("SELECT clusters.cluster_id-1 AS tmp, size, \
+								cluster_name AS name \
+								FROM clusters JOIN \
+								(SELECT cluster_id, \
+								count(*) as size FROM features \
+								GROUP BY cluster_id) AS cl \
+								ON clusters.cluster_id = cl.cluster_id;", app.engine)
+	dataNodes2['index'] = dataNodes2.index
+	dataNodes2.rename(columns={'tmp':'group'}, inplace=True)
+	dataNodes2 = dataNodes2.set_index('group')
+	dataLinks2 = psql.read_sql("SELECT cluster_id-1 AS cluster_to, cluster_from, \
+								COUNT(*) AS value \
+								FROM features JOIN \
+								(SELECT cluster_id-1 AS cluster_from, domain_to \
+								FROM features JOIN relations \
+								ON relations.domain_from = features.domain) AS prt1 \
+								ON prt1.domain_to = features.domain \
+								WHERE cluster_id-1 <> cluster_from \
+								GROUP BY cluster_to, cluster_from;", app.engine)
+	dataLinks2 = dataLinks2.join(dataNodes2['index'], on='cluster_from')
+	dataLinks2.rename(columns={'index':'source'}, inplace=True)
+	dataLinks2 = dataLinks2.join(dataNodes2['index'], on='cluster_to')
+	dataLinks2.rename(columns={'index':'target'}, inplace=True)
+	dataNodes2 = dataNodes2.reset_index()
+	dataNodes2.to_json('static/data/nodes2.json', orient="records")
+	dataLinks2.to_json('static/data/links2.json', orient="records")'''
 
 	# WORDCLOUD DATA ALREADY PREPARED IN SHALLOTS.PY
-
+	'''
+	rx = re.compile('\W+')  
+	data = psql.read_sql("SELECT cluster_id-1 AS cluster, text FROM features;", app.engine)
+	data['text'] = data['text'].apply(lambda x: (clean_tokenized_text(x, rx)))
+	data = data.groupby('cluster')['text'].apply(lambda x: \
+						list(itertools.chain.from_iterable(x))).reset_index()
+	for i, row in data.iterrows():
+		c = Counter(row['text'])
+		filename = 'static/data/worddata'+str(i)+'.json'
+		json.dump(c.most_common(50), open(filename, 'wb'))
+	'''
 	return render_template('dashboard.html', datamap=datalst)
 
-@app.route('/graph')
-def graph():
-	app.cursor.execute("SELECT * FROM relations;")
-	data_rel = app.cursor.fetchall()
-	app.cursor.execute("SELECT domain \
-						FROM features")
-	data_nodes = app.cursor.fetchall()
-	#data = {"nodes": [{"domain": "n[0]", "group":1 for n in data_nodes}], \
-	#		"linkes": [{"source": }]}
-
-	#with open('data/graphdata.json', 'w') as outfile:
-    #	json.dump(data, outfile)
-	return render_template('graph_temp.html')
-
 def set_default(obj):
-    if isinstance(obj, set):
-        return list(obj)
-    raise TypeError
-
-@app.route('/graph2')
-def graph2():
-	dataNodes = psql.read_sql("SELECT domain \
-						FROM features", app.engine)
-	dataNodes['group'] = pd.Series(np.random.randint(1,16, size=len(dataNodes)))
-	dataNodes['size'] = pd.Series(np.random.randint(1, 101, size=len(dataNodes)))
-	dataNodes['index'] = dataNodes.index
-	dataNodes = dataNodes.set_index('domain')
-	dataLinks = psql.read_sql("SELECT * FROM relations;", app.engine)
-	dataLinks['value']= pd.Series(np.random.randint(1, 6, size=len(dataLinks)))
-	dataLinks = dataLinks.join(dataNodes['index'], on='domain_from')
-	dataLinks.rename(columns={'index':'source'}, inplace=True)
-	dataLinks = dataLinks.join(dataNodes['index'], on='domain_to')
-	dataLinks.rename(columns={'index':'target'}, inplace=True)
-	dataNodes = dataNodes.reset_index()
-	dataNodes.to_json('static/data/nodes.json', orient="records")
-	dataLinks.to_json('static/data/links.json', orient="records")
-	#with open('data/links.json', 'w') as outfile:
-	#	json.dump(dataLinks.to_json, outfile)
-	return render_template('graph2.html')
+	if isinstance(obj, set):
+		return list(obj)
+	raise TypeError
 
 
 # FUTURE: 
-# wordcloud per cluster
 # concept graph per cluster
 # piechart clusters per country
 
@@ -136,6 +123,6 @@ def graph2():
 if __name__ == '__main__':
 	app.conn, app.cursor, app.engine = run_on_start()
 	print "done"
-	app.run(host='0.0.0.0', port=6969, debug=True)
+	app.run(host='0.0.0.0', port=8080, debug=True)
 	app.cursor.close()
 	app.conn.close()

@@ -170,10 +170,63 @@ class shallots(object):
         conceptextractor.extract_and_store(self.con, self.cur, topics)
 
     def prepare_for_web(self):
+        # CODE FOR WORDCLOUD 
         rx = re.compile('\W+')  
-        data = psql.read_sql("SELECT cluster_id, text from features;", engine)
+        data = psql.read_sql("SELECT cluster_id-1 AS cluster, text FROM features;", engine)
         data['text'] = data['text'].apply(lambda x: (clean_tokenized_text(x, rx)))
-        data.to_csv('web/data/worddata.tsv', sep='\t')
+        data = data.groupby('cluster')['text'].apply(lambda x: \
+                        list(itertools.chain.from_iterable(x))).reset_index()
+        for i, row in data.iterrows():
+            filename = 'web/static/data/worddata'+str(i)+'.csv'
+            pd.Series(row['text']).to_csv(filename, index=False)
+
+
+        # CODE FOR GRAPH DOMAIN BASED
+        dataNodes = psql.read_sql("SELECT cluster_id-1 as index2, domain \
+                        FROM features", engine)
+        dataNodes['group'] = pd.Series(np.random.randint(1,16, size=len(dataNodes)))
+        dataNodes['size'] = pd.Series(np.random.randint(1, 101, size=len(dataNodes)))
+        dataNodes['index'] = dataNodes.index
+        dataNodes = dataNodes.set_index('domain')
+        dataLinks = psql.read_sql("SELECT * FROM relations;", engine)
+        dataLinks['value']= pd.Series(np.random.randint(1, 6, size=len(dataLinks)))
+        dataLinks = dataLinks.join(dataNodes['index'], on='domain_from')
+        dataLinks.rename(columns={'index':'source'}, inplace=True)
+        dataLinks = dataLinks.join(dataNodes['index'], on='domain_to')
+        dataLinks.rename(columns={'index':'target'}, inplace=True)
+        dataNodes = dataNodes.reset_index()
+        dataNodes.to_json('web/static/data/nodes.json', orient="records")
+        dataLinks.to_json('web/static/data/links.json', orient="records")
+
+        # CODE FOR GRAPH TOPIC BASED
+        dataNodes2 = psql.read_sql('''SELECT clusters.cluster_id-1 AS tmp, size, \
+                                cluster_name AS name \
+                                FROM clusters JOIN \
+                                (SELECT cluster_id, \
+                                count(*) as size FROM features \
+                                GROUP BY cluster_id) AS cl \
+                                ON clusters.cluster_id = cl.cluster_id;''', engine)
+        dataNodes2['index'] = dataNodes2.index
+        dataNodes2.rename(columns={'tmp':'group'}, inplace=True)
+        dataNodes2 = dataNodes2.set_index('group')
+        dataLinks2 = psql.read_sql("SELECT cluster_id-1 AS cluster_to, cluster_from, \
+                                    COUNT(*) AS value \
+                                    FROM features JOIN \
+                                    (SELECT cluster_id-1 AS cluster_from, domain_to \
+                                    FROM features JOIN relations \
+                                    ON relations.domain_from = features.domain) AS prt1 \
+                                    ON prt1.domain_to = features.domain \
+                                    WHERE cluster_id-1 <> cluster_from \
+                                    GROUP BY cluster_to, cluster_from;", engine)
+        dataLinks2 = dataLinks2.join(dataNodes2['index'], on='cluster_from')
+        dataLinks2.rename(columns={'index':'source'}, inplace=True)
+        dataLinks2 = dataLinks2.join(dataNodes2['index'], on='cluster_to')
+        dataLinks2.rename(columns={'index':'target'}, inplace=True)
+        dataNodes2 = dataNodes2.reset_index()
+        dataNodes2.to_json('web/static/data/nodes2.json', orient="records")
+        dataLinks2.to_json('web/static/data/links2.json', orient="records")
+
+
 
 
 if __name__ == '__main__':
@@ -204,14 +257,14 @@ if __name__ == '__main__':
 
     # STORE CLUSTERS AND THEIR DESCRIPTION
     # PLUS STORE CLUSTER ASSIGNMENTS  
-    shal.cur.execute("DELETE FROM clusters WHERE true;")
-    shal.con.commit() 
-    shal.find_topics_descr_and_store(n_topics = shal.n_topics, n_domains = 400)
+    #shal.cur.execute("DELETE FROM clusters WHERE true;")
+    #shal.con.commit() 
+    #shal.find_topics_descr_and_store(n_topics = shal.n_topics, n_domains = 400)
 
     # WITHIN CLUSTES, DO SIMILAR CONCEPT EXTRACTION AND STORE
-    shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
-    shal.con.commit() 
-    shal.similar_extract()
+    #shal.cur.execute("DELETE FROM clusterwordvecs WHERE true;")
+    #shal.con.commit() 
+    #shal.similar_extract()
 
     shal.prepare_for_web() 
     
