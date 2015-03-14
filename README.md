@@ -1,6 +1,7 @@
 # shallots
 
 "Shining the light on the deep web, analysis of what is beneath the surface of the internet"
+<br><a href="http://www.shallots.info/">Analysis dashboard</a>
 
 <i>Summary</i>
 
@@ -54,12 +55,9 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Python
 <br>-MongoDB
 <br>-PostgreSQL
-<br>-Gephi
-<br>-matplotlib/d3.js/plot.ly?
-<br>-GIS?
+<br>-d3.js
 <br>-NER from stanford
 <br>-Gensim
-<br>-Clustering (kmeans?)
 
 <img src='images/dataflow.png' width=800>
 
@@ -68,9 +66,6 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 
 <i>Challenges I ran into:</i>
 <br>-Getting it to work on amazon & storage > a lot of crashes
-
-<i>Timeline</i>
-<br>deadline March 19th
 
 <i>References</i>
 <br>https://blog.torproject.org/category/tags/crawling 
@@ -81,6 +76,8 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 
 <i>Future work</i>
 <br>-Explore other possible interesting features -> weighting based on html tag
+<br>-Make more visuals + interactive (word2vec viz)
+<br>-TSNE
 
 <i>Dependencies</i>
 <br>pip install pymongo
@@ -90,5 +87,3 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>Geograpy2 -> install from <a href=https://github.com/Corollarium/geograpy2>github</a>, but comment out the reference to geograpy-nltk in the install script. 
 <br>pip install python-Levenshtein
 <br>conda install gensim
-
-How to use: 
