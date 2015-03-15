@@ -3,6 +3,8 @@
 "Shining the light on the deep web, analysis of what is beneath the surface of the internet"
 <br><a href="http://www.shallots.info/">Analysis dashboard</a>
 
+<i>add screenshot</i>
+
 <i>Summary</i>
 
 The deep web has a lot of secrets. My goal is to give some insight in what is going on there. I'll describe the main topics that are discussed there and give insight in their meaning. I'll divide the clusters into 2 groups (legal/illegal) and find out if they behave like 2 separate islands or are actually connected. And last I'll geographically plot the countries talked about in relation to the clusters. It will start with crawled deep web html content and it will end with a website with visualizations. 
