@@ -3,7 +3,7 @@
 "Shining the light on the deep web, analysis of what is beneath the surface of the internet"
 <br><a href="http://www.shallots.info/">Analysis dashboard</a>
 
-<img src="/images/screenshot.png" width=500>
+<a href="http://www.shallots.info/"><img src="/images/screenshot.png" width=500></a>
 
 <i>Summary</i>
 
