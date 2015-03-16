@@ -16,7 +16,7 @@ def run(db, stepsize =1000, start=0):
     skipped = 0
     amount = start
     # BATCHES BY STEPSIZE, USE SKIP FOR NEXT STEP
-    while amount <= db.count():
+    while amount < db.count():
         print amount
         for i in db.find().skip(skipped).limit(stepsize):
             amount += 1

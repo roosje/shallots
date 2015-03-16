@@ -12,13 +12,12 @@ def extract_and_store(con, cur, topics):
 	'''
 
 	print "finding similar words per cluster"
-	rx = re.compile('\W+')
 	for topic in topics: 
 		cur.execute("SELECT text FROM features \
 					 WHERE cluster_id=%d;" %(topic))
 		sentences = []
 		for row in cur.fetchall():
-			text = clean_tokenized_text(row[0], rx)
+			text = clean_tokenized_text(row[0])
 			sentences.append(text)
 		model = models.Word2Vec(sentences, size=1000, window=5, min_count=2, workers=4)
 		cur.execute("SELECT description FROM clusters \

@@ -1,9 +1,11 @@
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from collections import Counter
+import re
 
 
-def clean_tokenized_text(doc, rx):
+def clean_tokenized_text(doc):
+        rx = re.compile('\W+')
         #cleaning punctuation and non alpha content
         text = rx.sub(" ", doc).strip().lower()
         excllist = [u'html',u'jpg',u'gif',u'index',u'onion',u'http',u'image', \
@@ -21,3 +23,4 @@ def clean_tokenized_text(doc, rx):
                 split_cleaned_text.append(temp)
         #print Counter(split_cleaned_text).most_common(5)
         return split_cleaned_text
+
