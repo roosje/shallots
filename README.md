@@ -62,6 +62,7 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-d3.js
 <br>-NER from stanford
 <br>-Gensim
+<br>-sklearn NMF
 
 <img src='images/dataflow.png' width=800>
 
@@ -82,6 +83,7 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Getting more domains in the crawled data
 <br>-Explore other possible interesting features -> weighting based on html tag
 <br>-Make more visuals + interactive (word2vec viz)
+<br>-Improve topic modeling
 <br>-TSNE
 
 <i>Dependencies</i>
