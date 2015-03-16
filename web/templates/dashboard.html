@@ -73,12 +73,9 @@
         stroke-opacity: .5;
       }
 
-      .tooltip{ 
-          opacity: .9;
-          background: #333;
+      #tooltip{ 
+          opacity: .95;
           padding: 5px;
-          border: 1px solid lightgrey;
-          border-radius: 5px;
           position: absolute;
           z-index:10;
           visibility: hidden;
@@ -272,12 +269,13 @@ function dsMap(){
                 makePie(m);
                 d3.select("#tooltip")
                 .style("visibility", "visible")
-                //.style("top", function () { return (geography.geometry.coordinates[0][0][0][0])+"px"})
-                //.style("left", function () { return (geography.geometry.coordinates[0][0][0][1])+"px"})
-                .style("top", function () { return (d3.event.pageY - 130)+"px"})
-                .style("left", function () { return (d3.event.pageX - 130)+"px";})
+                .style("top", function () { return (d3.event.pageY - 330)+"px";})
+                .style("left", function () { return (d3.event.pageX - 400)+"px";});
               })
-          .on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
+          .on("mouseout", function (d) { 
+                d3.select("#tooltip").style("visibility", "hidden") 
+
+          });
         },
         
         fills: {
@@ -301,14 +299,6 @@ function dsMap(){
 
         geographyConfig: {
           hideAntarctica: true,
-          popupTemplate: function(geography, data) { //this function should just return a string
-          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong><div id="minichart"></div></div>';
-          },
-          popupOnHover: true,
-          highlightOnHover: true,
-          highlightFillColor: '#000000',
-          highlightBorderColor: '#000000'
-
         },
       
         data: {
@@ -318,7 +308,7 @@ function dsMap(){
         }
       })
       
-      //map.graticule();
+      map.graticule();
     }
 
 
