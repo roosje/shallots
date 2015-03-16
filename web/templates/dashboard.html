@@ -4,6 +4,7 @@
     <title>Shallots Dashboard</title> 
     <meta name="description" content="shallots">
     <meta name="author" content="roosje">
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -43,7 +44,7 @@
       #graph {
           position:absolute;
           top:0px;
-          left:350px;
+          left:400px;
           width: 800px;
           height: 400px;
       }
@@ -72,15 +73,18 @@
         stroke-opacity: .5;
       }
 
-      .tooltip{ background-color:rgba(255,255,255,0.7);
-          margin: 10px;
-          height: 260px;
-          width: 300px;
-          padding-left: 10px; 
-          padding-top: 10px;
-      -webkit-border-radius:10px;
-      -moz-border-radius:10px;
-      border-radius:10px;
+      .tooltip{ 
+          opacity: .9;
+          background: #333;
+          padding: 5px;
+          border: 1px solid lightgrey;
+          border-radius: 5px;
+          position: absolute;
+          z-index:10;
+          visibility: hidden;
+          pointer-events:none;
+          width:120;
+          height:120;
         }
 
 
@@ -105,6 +109,46 @@ var color = d3.scale.linear()
           .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
           .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
           .interpolate(d3.cie.interpolateLch);   
+
+/*
+############# PIE CHART ROLL OVER ###################
+-------------------------------------------
+*/
+
+function makePie(data) {
+
+           d3.select("#tooltip").selectAll(".arc").remove();
+           d3.select("#tooltip").selectAll(".pie").remove();
+
+           var arc = d3.svg.arc()
+                   .outerRadius(45)
+                   .innerRadius(10);
+
+           var pie = d3.layout.pie()
+                   .value(function(d) { return d.value; });
+
+           var svg = d3.select("#tooltip").select("svg")
+                   .append("g")
+                   .attr("class", "pie")
+                   .attr("transform", "translate(50,50)");
+
+           var g = svg.selectAll(".arc")
+                   .data(pie(data))
+                   .enter().append("g")
+                   .attr("class", "arc");
+
+           g.append("path")
+                   .attr("d", arc)
+                   .style("fill", function(d, i) {
+                       return color(d.data.label);
+                   });
+
+           g.append("text")
+                   .attr("transform", function(d) { 
+                    return "translate(" + arc.centroid(d) + ")"; })
+                   .style("text-anchor", "middle")
+                   .text(function (d) { return d.data.value === 0 ? "" : d.data.value; });
+    }
 
 /*
 ############# PIE CHART ###################
@@ -221,20 +265,34 @@ function dsMap(){
         scope: 'world',
         element: document.getElementById('map'),
         projection: 'equirectangular',
+        done: function(datamap) {
+          datamap.svg.selectAll('.datamaps-subunit')
+          .on('mouseover', function(geography) {
+                var m = mappies[geography.id];
+                makePie(m);
+                d3.select("#tooltip")
+                .style("visibility", "visible")
+                //.style("top", function () { return (geography.geometry.coordinates[0][0][0][0])+"px"})
+                //.style("left", function () { return (geography.geometry.coordinates[0][0][0][1])+"px"})
+                .style("top", function () { return (d3.event.pageY - 130)+"px"})
+                .style("left", function () { return (d3.event.pageX - 130)+"px";})
+              })
+          .on("mouseout", function (d) { d3.select("#tooltip").style("visibility", "hidden") });
+        },
         
         fills: {
           defaultFill: '#b2b2b2',
-           0: '#008833',
-          .1: '#339933',
-          .2: '#66AA33',
-          .3: '#99BB33',
-          .4: '#CCCC33',
+           1: '#008833',
+          .9: '#339933',
+          .8: '#66AA33',
+          .7: '#99BB33',
+          .6: '#CCCC33',
           .5: '#DDCC33',
-          .6: '#FFBB33',
-          .7: '#FF9933',
-          .8: '#FF6633',
-          .9: '#FF3333',
-           1: '#FF0033'
+          .4: '#FFBB33',
+          .3: '#FF9933',
+          .2: '#FF6633',
+          .1: '#FF3333',
+           0: '#FF0033'
         },
         
         projectionConfig: {
@@ -275,7 +333,7 @@ function dsCloud(error, data){
 
   var fill = d3.scale.category20c();
 
-  d3.layout.cloud().size([700, 340])
+  d3.layout.cloud().size([800, 340])
       .words(data.map(function(d) {
         return {text: d[0], size: Math.sqrt(d[1])*2+15};
       }))
@@ -289,7 +347,7 @@ function dsCloud(error, data){
   function draw(words) {
     d3.select("#wordCloud").append("svg")
         .attr("id", "cloudsvg")
-        .attr("width", 700)
+        .attr("width", 800)
         .attr("height", 340)
         .append("g")
         .attr("transform", "translate(360,190)")
@@ -362,7 +420,6 @@ function dsGraph(error, nodes, links) {
     </script>
   </head>
   <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
-
     <!-- Navigation -->
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
@@ -394,19 +451,20 @@ function dsGraph(error, nodes, links) {
         </div>
         <!-- /.container -->
     </nav>
-
     <!-- Intro Section -->
     <section id="intro" class="intro-section">
-        <div class="container">
-            <div class="row">
+        <div class="container" align="left">Can we divide the deep web in specific topics? Are they connected?  I found 15 clusters, that are strongly connected. The colors of the graph nodes and the pie slices match for the same topics. The word clouds (click on the slices) tell more about the most common seen words within the topic groups. I (hand-)classified the topics as one of 2 groups: legal or illegal. It was interesting to discover that the illegal topics are more specific and better recognized by the topic model (like drugs). For the countries mentioned in the deep web, I visualized the legality rate of the hosting domains in the lower map. Mouse overs will show more information.   
+
+            <div class="row"> 
                 <div class="col-lg-12">
                   <svg width="100%", height="400">
                     <rect width="100%", height="100%", style="fill:white;stroke:black;stroke-width:5;opacity:0.5" />
-                    <div id="pieChart"><h3>Deep web topic group size</h3></div>
-                    <div id="graph"><h3 id="header_gr_wc">Graph of url-references between topics</h3></div>
-                    <div id="wordCloud"></div>
-                    <div id="map"><h3>Legal/illegal related mention of countries</h3></div>
+                    <div id="pieChart"><pre>Deep web topic group size</pre></div>
+                    <div id="graph"><pre id="header_gr_wc">Graph of url-references between topics</pre></div>
                   </svg>
+                    <div id="wordCloud"></div>
+                    <div id="map"><pre>Legal/illegal related mention of countries</pre></div>
+                    <div id="tooltip"><svg width="100px" height="100px"></svg></div>
                 </div>
             </div>
         </div>
@@ -423,7 +481,7 @@ function dsGraph(error, nodes, links) {
                     </p>
                     <p>
                       <i>Summary</i>
-                      The deep web has a lot of secrets. My goal is to give some insight in what is going on there. Through visauls I show the main topics that are discussed there and give insight in their meaning. I divided the clusters into 2 groups (legal/illegal) and analysed if they behave like 2 separate islands or are actually connected. And lastly made a map of the countries talked about in relation to the legal/illegal clusters. 
+                      The deep web has a lot of secrets. My goal is to give some insight in what is going on there. Through visuals I show the main topics that are discussed there and give insight in their meaning. I divided the clusters into 2 groups (legal/illegal) and analysed if they behave like 2 separate islands or are actually connected. And lastly made a map of the countries talked about in relation to the legal/illegal clusters. 
                     </p>
                     <p>
                       <i>Description</i>

@@ -39,7 +39,7 @@ def index():
 								AS leg \
 						  ON countries.domain=leg.domain;", app.engine)
 	datalst = []
-	data_pies = defaultdict(dict)
+	data_pies = defaultdict(list)
 	condition_leg = data['legal']==True
 	condition_illeg = data['legal']==False
 	for cntry in data.columns[1:-3]:
@@ -50,15 +50,14 @@ def index():
 		if total > 0:
 			datalst.append([cntry, round(float(legal)/total, 1)])
 		# example: {Netherlands: 0.5}
-		temp={}
 		for cl in data['cluster_id'].unique():
+			temp={}
 			condition_clst = data['cluster_id']==cl
 			total2 = len(data[condition_cntry & condition_clst])	
 			if total2 > 0:
-				temp['value']=round(float(total2)/sumcountry, 1)
+				temp['value']=total2
 				temp['label']=cl
-		data_pies[cntry] = temp
-		#json.dump(data_pies, open('static/data/countryclusterstats.json', 'wb'))
+				data_pies[cntry].append(temp)
 
 	# CODE FOR CLUSTER_NAMES WITH CLUSTER_IDs ALREADY PREPARED IN SHALLOTS.PY
 
