@@ -72,6 +72,17 @@
         stroke-opacity: .5;
       }
 
+      .tooltip{ background-color:rgba(255,255,255,0.7);
+          margin: 10px;
+          height: 260px;
+          width: 300px;
+          padding-left: 10px; 
+          padding-top: 10px;
+      -webkit-border-radius:10px;
+      -moz-border-radius:10px;
+      border-radius:10px;
+        }
+
 
     </style>
 
@@ -88,6 +99,12 @@ var formatAsPercentage = d3.format("%"),
 
 //Adding names to cluster ids
 var cl_names = {{ clnames | safe }};
+var mappies = {{ mappies | safe }};
+
+var color = d3.scale.linear()
+          .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
+          .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
+          .interpolate(d3.cie.interpolateLch);   
 
 /*
 ############# PIE CHART ###################
@@ -104,10 +121,6 @@ function dsPieChart(error, dataset){
            // for animation
            innerRadiusFinal = outerRadius * .5,
            innerRadiusFinal3 = outerRadius* .45,
-           color = d3.scale.linear()
-          .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
-          .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
-          .interpolate(d3.cie.interpolateLch);   
            dataset = dataset;
         
     var vis = d3.select("#pieChart")
@@ -117,12 +130,6 @@ function dsPieChart(error, dataset){
          .attr("height", height)
          .append("svg:g")                
          .attr("transform", "translate(" + outerRadius + "," + outerRadius + ")");
-
-   //vis.append("circle")
-   //                       .attr("cx", 0)
-   //                       .attr("cy", 0)
-   //                       .attr("r", 80)
-   //                       .attr("fill", "#F1F1F1");
                 
    var arc = d3.svg.arc()              
             .outerRadius(outerRadius).innerRadius(innerRadius);
@@ -162,7 +169,6 @@ function dsPieChart(error, dataset){
           .attr("text-anchor", "middle")
           .attr("transform", function(d) { return "translate(" + arcFinal.centroid(d) + ")rotate(" + angle(d) + ")"; })
           .text(function(d) { return formatAsPercentage(d.data.measure); })
-          //.text(function(d) { return cl_names[d.data.category]; })
           ;
        
        // Computes the label angle of an arc, converting from radians to degrees.
@@ -238,7 +244,7 @@ function dsMap(){
         geographyConfig: {
           hideAntarctica: true,
           popupTemplate: function(geography, data) { //this function should just return a string
-          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+          return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong><div id="minichart"></div></div>';
           },
           popupOnHover: true,
           highlightOnHover: true,
@@ -308,11 +314,7 @@ function dsCloud(error, data){
 
 function dsGraph(error, nodes, links) {
     var w = 800,
-        h = 400,
-        color = d3.scale.linear()
-          .domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20])
-          .range(['#1f77b4','#aec7e8','#ff7f0e','#ffbb78','#2ca02c','#98df8a','#d62728','#ff9896','#9467bd','#c5b0d5','#8c564b','#c49c94','#e377c2','#f7b6d2','#7f7f7f','#c7c7c7','#bcbd22','#dbdb8d','#17becf','#9edae5'])
-          .interpolate(d3.cie.interpolateLch);
+        h = 400;
 
     var force = d3.layout.force()
         //.gravity(0.06)
@@ -467,7 +469,6 @@ function dsGraph(error, nodes, links) {
     queue()
       .defer(d3.json, '/static/data/startwordcloud.json')
       .await(dsCloud);
-    //dsCloud([]);
 
     document.getElementById('wordCloud').addEventListener('click', function()
     {

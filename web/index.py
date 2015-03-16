@@ -55,9 +55,10 @@ def index():
 			condition_clst = data['cluster_id']==cl
 			total2 = len(data[condition_cntry & condition_clst])	
 			if total2 > 0:
-				temp[cl]=round(float(total2)/sumcountry, 1)
+				temp['value']=round(float(total2)/sumcountry, 1)
+				temp['label']=cl
 		data_pies[cntry] = temp
-		json.dump(data_pies, open('static/data/countryclusterstats.json', 'wb'))
+		#json.dump(data_pies, open('static/data/countryclusterstats.json', 'wb'))
 
 	# CODE FOR CLUSTER_NAMES WITH CLUSTER_IDs ALREADY PREPARED IN SHALLOTS.PY
 
@@ -72,7 +73,8 @@ def index():
 	for row in names.iterrows():
 		row = row[1]
 		namelst[row['cluster_id']] = row['cluster_name']
-	return render_template('dashboard.html', datamap=datalst, clnames=json.dumps(namelst))
+	return render_template('dashboard.html', datamap=datalst, \
+							clnames=json.dumps(namelst), mappies=json.dumps(data_pies))
 
 def set_default(obj):
 	if isinstance(obj, set):
