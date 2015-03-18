@@ -50,9 +50,9 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>-Visualize 
 <ul>
 <li>Barchart with on click -> wordcloud</li>
-<li>Gephi grouped clusters with relations between them based on url references</li>
+<li>Network grouped clusters with relations between them based on url references</li>
 <li>Map of the world with spectrum red-green based on legal/illegal</li>
-<li>.... </li>
+<li>Mouseover piechart on map</li>
 </ul>
 
 <i>Architecture & implementation</i>
@@ -80,11 +80,7 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>https://github.com/juhanurmi/ahmia/tree/master/onionbot
 
 <i>Future work</i>
-<br>-Getting more domains in the crawled data
-<br>-Explore other possible interesting features -> weighting based on html tag
-<br>-Make more visuals + interactive (word2vec viz)
-<br>-Improve topic modeling
-<br>-TSNE
+<br>Check the future_work.MD for my plans for future improvements.
 
 <i>Dependencies</i>
 <br>pip install pymongo

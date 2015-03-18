@@ -1,9 +1,7 @@
 import os
 import csv
 import pycountry
-import sqlite3
 import pandas as pd
-from collections import Counter #might need that later
 from fuzzywuzzy import fuzz
 import geograpy2
 from geograpy2.extraction import Extractor
@@ -13,22 +11,17 @@ from pymongo import MongoClient
 
 import pandas.io.sql as psql
 
-from sqlalchemy import create_engine
+'''
+These functions help with extracting the countries from the text
+-geograpy2 uses nltk for entity extraction
+-the countrydict in combination with fuzzywuzzy is used to correct spelling
+errors and synonyms
+-pycountry is used to check if the string is known as a country
+I made the decision at this point to use true/false instead of counts per doc
+'''
 
-import unicodedata as ud
-
-#decicion: country = true/false instead of counts
-
-#for every mongo_id in sql and cleaned text
-#find countries in text as set
-
-#create pandas dataframe
-#put set in pandas (id, country, country, country)
-#create columns in sql based on all found countries
-#store pandas dataframe in sql
 
 def correct_country_mispelling(s):
-
     with open("data/countrydict.csv", "rb") as info:
         reader = csv.reader(info)
         for row in reader:
@@ -39,7 +32,8 @@ def correct_country_mispelling(s):
                 return row[2]
     return s
 
-def is_a_country2(s): 
+
+def is_a_country2(s):
     s = s.encode('utf-8').decode('utf-8')
     s = correct_country_mispelling(s)
     try:
@@ -48,11 +42,13 @@ def is_a_country2(s):
     except KeyError, e:
         return False
 
+
 def get_countries(s):
     places = geograpy2.get_place_context(text=s)
-    return set([pycountry.countries.get(name=correct_country_mispelling(place))\
-                .alpha3 for place in set(places.names)\
+    return set([pycountry.countries.get(name=correct_country_mispelling(place))
+                .alpha3 for place in set(places.names)
                 if is_a_country2(place)])
+
 
 def run(conn, engine):
     print "extracting countries from text and storing"
@@ -61,21 +57,14 @@ def run(conn, engine):
     except:
         data = psql.read_sql("SELECT domain, text FROM features;", engine)
         for index, row in data.iterrows():
-            if len(row['text'])>0:
-                countries = get_countries(row['text'].encode('utf-8').decode('utf-8'))
+            if len(row['text']) > 0:
+                countries = get_countries(
+                    row['text'].encode('utf-8').decode('utf-8'))
                 for country in countries:
-                    data.loc[index, country]=True
-
-
+                    data.loc[index, country] = True
         data = data.fillna(False)
         data.pop('text')
         data.to_pickle('data/countries.pkl')
 
-    print data.columns 
-    psql.to_sql(data, "countries", con=engine, if_exists='replace', index=False)
-
-
-
-
-
-
+    psql.to_sql(data, "countries", con=engine, if_exists='replace',
+                index=False)
