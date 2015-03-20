@@ -10,5 +10,6 @@
 <b><br/>Viz:</b>
 <br>(interactive) Concept graph per topic
 <br>Add border to slices in piechart that represent legal or illegal cluster
-<br>(interactive) Map per graph (colored from low to high presence)
+<br>(interactive) Map per cluster (colored from low to high presence)
+<br>Foamtree for clusters within clusters
 
