@@ -1,32 +1,32 @@
 # Shallots
 
-"Shining the light on the deep web, analysis of what is beneath the surface of the internet"
+"Shining the light on the dark web, analysis of what is beneath the surface of the internet"
 <br><a href="http://www.shallots.info/">Analysis dashboard</a>
 
 <a href="http://www.shallots.info/"><img src="/images/screenshot3.png" width=500></a>
 
 <i>Summary</i>
 
-The deep web has a lot of secrets. My goal is to give some insight in what is going on there. I'll describe the main topics that are discussed there and give insight in their meaning. I'll divide the clusters into 2 groups (legal/illegal) and find out if they behave like 2 separate islands or are actually connected. And last I'll geographically plot the countries talked about in relation to the clusters. It will start with crawled deep web html content and it will end with a website with visualizations. 
+The dark web has a lot of secrets. My goal is to give some insight in what is going on there. I'll describe the main topics that are discussed there and give insight in their meaning. I'll divide the clusters into 2 groups (legal/illegal) and find out if they behave like 2 separate islands or are actually connected. And last I'll geographically plot the countries talked about in relation to the clusters. It will start with crawled dark web html content and it will end with a website with visualizations. 
 
 <i>Description</i>
 
 Tor helps anonymous online communication. It is meant to provide safety for vulnerable internet users such as political activists. The downside, however, is that it facilitates criminals that use servers that can only receive connections through Tor, to make it hard to get identified. Those servers are called hidden services and can be accessed through an .onion address. 
 
-Not much research has been done on what is going on in this "deep web". There was some content clustering, which showed that both legal and illegal content is available on websites. It is not clear how connected those 2 groups are. 
+Not much research has been done on what is going on in this "dark web". There was some content clustering, which showed that both legal and illegal content is available on websites. It is not clear how connected those 2 groups are. 
 
 <i>Motivation</i>
 
-In 2011 I first encountered the illegal side of the deep web. Since then it kept surprising me that tools and analysts that focus on the internet, normally don't take the deep web into account. They actually should in my opinion because this is especially the place where things can come to the surface since users feel save by the anonymizing function of Tor. 
+In 2011 I first encountered the illegal side of the dark web. Since then it kept surprising me that tools and analysts that focus on the internet, normally don't take the dark web into account. They actually should in my opinion because this is especially the place where things can come to the surface since users feel save by the anonymizing function of Tor. 
 
-It is an ideal way to combine my interest in the deep web with my preference for NLP, social network analysis (SNA) and visualization into one project. And it can grow along the way, if there is time, looking further into insights I get during the analysis.
+It is an ideal way to combine my interest in the dark web with my preference for NLP, social network analysis (SNA) and visualization into one project. And it can grow along the way, if there is time, looking further into insights I get during the analysis.
 
 <i>Numbers</i><br>
 The current setup works wih 3350 crawled onion websites (2408 of which are classified as being in english)
 There are 1117 distinct domains within the data, 743 of which being in English. 
 
 <i>Data Sources</i><br>
-Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and OnionBot.
+Crawled dark web data stored in mongoDB, crawled by the builder of Ahmia and OnionBot.
 <a href=https://github.com/juhanurmi/ahmia/tree/master/onionbot>OnionBot</a>
 
 <i>Details</i>
@@ -92,6 +92,6 @@ Crawled deep web data stored in mongoDB, crawled by the builder of Ahmia and Oni
 <br>conda install gensim
 
 <i>Run it</i>
-<br>Be sure to already have crawled data in a mongodb
+<br>Be sure to already have crawled data in mongodb
 <br>Python shallots.py for preparing the data
 <br>Python index.py starting the dashboard
